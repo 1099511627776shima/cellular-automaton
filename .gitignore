@@ -12,3 +12,6 @@ settings.gradle
 
 # GUI
 src/main/resources/gui/alt.fxml
+
+# Tests
+src/test/
