@@ -25,6 +25,8 @@ public class GameOfLife extends Automaton2Dim {
         int survival = ruleScanner.nextInt();
         int birth = ruleScanner.nextInt();
 
+
+        // FIXME assuming only 1-9 rules (not greater than 10)
         while(survival > 0) {
             survivalCondition.add(survival % 10);
             survival /= 10;

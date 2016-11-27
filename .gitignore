@@ -9,3 +9,6 @@ settings.gradle
 
 # IntelliJ IDEA files
 .idea/
+
+# GUI
+src/main/resources/gui/alt.fxml

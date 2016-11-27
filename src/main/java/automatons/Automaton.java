@@ -13,6 +13,10 @@ public abstract class Automaton {
         this.neighbourStrategy = neighbourStrategy;
     }
 
+    public Automaton copy() {
+        return newInstance(stateFactory, neighbourStrategy);
+    }
+
     public Automaton nextState() {
         Automaton newAutomoton = newInstance(stateFactory, neighbourStrategy);
         // Iterates through the Automaton representing old state
