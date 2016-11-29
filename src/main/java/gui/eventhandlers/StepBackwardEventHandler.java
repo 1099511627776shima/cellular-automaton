@@ -4,13 +4,13 @@ import gui.controllers.MainStageController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
-public class StepForwardEventHandler implements EventHandler<ActionEvent> {
-    public StepForwardEventHandler(MainStageController controller) {
+public class StepBackwardEventHandler implements EventHandler<ActionEvent> {
+    public StepBackwardEventHandler(MainStageController controller) {
         this.controller = controller;
     }
     @Override
     public void handle(ActionEvent event) {
-        controller.stepForward();
+        controller.stepBackward();
     }
 
     private MainStageController controller;

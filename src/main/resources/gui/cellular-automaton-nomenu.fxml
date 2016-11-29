@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controllers.MainStageController">
+   <top>
+      <MenuBar fx:id="menuBar" prefHeight="30.0" BorderPane.alignment="CENTER">
+        <menus>
+          <Menu fx:id="menuFile" mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem fx:id="fileExit" mnemonicParsing="false" text="Exit" />
+            </items>
+          </Menu>
+          <Menu fx:id="menuEdit" mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem fx:id="editInsert" mnemonicParsing="false" text="Insert custom structure...">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="I" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <Menu fx:id="menuEditInsert" mnemonicParsing="false" text="Insert basic structure">
+                    <items>
+                      <MenuItem fx:id="insertGlider" mnemonicParsing="false" text="Glider" />
+                    </items>
+                  </Menu>
+            </items>
+          </Menu>
+          <Menu fx:id="menuSimulation" mnemonicParsing="false" text="Simulation">
+            <items>
+                  <MenuItem fx:id="simulationRun" mnemonicParsing="false" text="Run">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="simulationPause" mnemonicParsing="false" text="Pause">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="simulationRestart" mnemonicParsing="false" text="Restart">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="X" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="simulationForward" mnemonicParsing="false" text="Step Forward">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="GREATER" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="simulationBackward" mnemonicParsing="false" text="Step Backward">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="LESS" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+            </items>
+          </Menu>
+            <Menu fx:id="menuHelp" mnemonicParsing="false" text="Help">
+              <items>
+                <MenuItem fx:id="helpAbout" mnemonicParsing="false" text="About" />
+              </items>
+            </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <bottom>
+      <AnchorPane maxHeight="30.0" prefHeight="30.0" prefWidth="1280.0" BorderPane.alignment="CENTER">
+         <children>
+            <AnchorPane maxHeight="30.0" prefHeight="30.0" prefWidth="350.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <Label fx:id="generationLabel" alignment="CENTER" text="Generation: 0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="0.0" />
+                  <Label fx:id="liveCellsLabel" alignment="CENTER" layoutX="20.0" layoutY="10.0" text="Live cells: 0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
+            <AnchorPane layoutX="10.0" layoutY="10.0" maxHeight="30.0" prefHeight="30.0" prefWidth="200.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="30.0" prefWidth="116.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Label alignment="CENTER" text="Step:" />
+                        <TextField prefWidth="50.0" text="0.01" />
+                        <Label alignment="CENTER" text="s" />
+                     </children>
+                  </HBox>
+               </children>
+            </AnchorPane>
+         </children>
+      </AnchorPane>
+   </bottom>
+   <center>
+      <AnchorPane fx:id="displayAnchor" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <ToolBar maxHeight="35.0" minHeight="35.0" prefHeight="35.0" prefWidth="1280.0" VBox.vgrow="NEVER">
+                    <items>
+                      <Button fx:id="newBtn" alignment="CENTER" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="New" />
+                        <Button fx:id="insertBtn" alignment="CENTER" layoutX="10.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Insert" />
+                        <Separator orientation="VERTICAL" prefHeight="26.0" prefWidth="0.0" />
+                        <Button fx:id="simulationRunBtn" alignment="CENTER" layoutX="81.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Run" />
+                        <Button fx:id="simulationPauseBtn" alignment="CENTER" layoutX="162.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Pause" />
+                        <Button fx:id="simulationResetBtn" alignment="CENTER" layoutX="233.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Reset" />
+                        <Button fx:id="simulationForwardBtn" alignment="CENTER" layoutX="304.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Forward" />
+                        <Button fx:id="simulationBackwardBtn" alignment="CENTER" layoutX="375.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Backward" />
+                    </items>
+                  </ToolBar>
+                  <ScrollPane fx:id="scrollableRegion" fitToHeight="true" fitToWidth="true" prefHeight="650.0" prefWidth="1280.0" VBox.vgrow="ALWAYS">
+                     <content>
+                        <Group fx:id="scrollContent">
+                           <children>
+                              <StackPane fx:id="zoomableRegion" maxWidth="150.0" prefHeight="200.0" />
+                           </children>
+                        </Group>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+         </children></AnchorPane>
+   </center>
+</BorderPane>

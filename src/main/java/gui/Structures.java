@@ -8,14 +8,18 @@ import cells.states.CellState;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Structure {
-    Structure() {
-        glider = new HashMap<>();
+public class Structures {
+
+    public static final Map<CellCoordinates, CellState> GLIDER = createGlider();
+
+    private static Map<CellCoordinates, CellState> createGlider() {
+        Map<CellCoordinates, CellState> glider = new HashMap<>();
         glider.put(new Coords2D(1,0), BinaryState.ALIVE);
         glider.put(new Coords2D(2,1), BinaryState.ALIVE);
         glider.put(new Coords2D(0,2), BinaryState.ALIVE);
         glider.put(new Coords2D(1,2), BinaryState.ALIVE);
         glider.put(new Coords2D(2,2), BinaryState.ALIVE);
+
+        return glider;
     }
-    public final Map<CellCoordinates, CellState> glider;
 }

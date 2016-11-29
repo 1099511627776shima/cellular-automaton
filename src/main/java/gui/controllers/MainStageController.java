@@ -1,4 +1,4 @@
-package gui;
+package gui.controllers;
 
 import automatons.Automaton;
 import automatons.GameOfLife;
@@ -7,9 +7,14 @@ import cells.coordinates.CellCoordinates;
 import cells.coordinates.Coords2D;
 import cells.neighbourhood.CellNeighbourhood;
 import cells.neighbourhood.MooreNeighbourhood;
+import cells.neighbourhood.VonNeumannNeighbourhood;
 import cells.states.*;
+import gui.AutomatonDisplay;
+import gui.Structures;
 import gui.eventhandlers.*;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -22,10 +27,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -40,56 +42,60 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.*;
 
-public class Controller implements Initializable {
+public class MainStageController implements Initializable {
     final int CELL_SIZE = 20;
+
 
     @FXML
     private MenuBar menuBar;
-
     @FXML
     private Menu menuFile;
-
     @FXML
     private MenuItem fileExit;
-
     @FXML
     private Menu menuEdit;
-
     @FXML
     private MenuItem editInsert;
-
     @FXML
     private Menu menuEditInsert;
-
     @FXML
     private MenuItem insertGlider;
-
     @FXML
     private Menu menuSimulation;
-
     @FXML
     private MenuItem simulationRun;
-
     @FXML
     private MenuItem simulationPause;
-
     @FXML
     private MenuItem simulationRestart;
-
     @FXML
     private MenuItem simulationForward;
-
     @FXML
     private MenuItem simulationBackward;
-
     @FXML
     private Menu menuHelp;
-
     @FXML
     private MenuItem helpAbout;
-
     @FXML
     private AnchorPane displayAnchor;
+    @FXML
+    private Button newBtn;
+    @FXML
+    private Button insertBtn;
+    @FXML
+    private Button simulationRunBtn;
+    @FXML
+    private Button simulationPauseBtn;
+    @FXML
+    private Button simulationResetBtn;
+    @FXML
+    private Button simulationForwardBtn;
+    @FXML
+    private Button simulationBackwardBtn;
+    @FXML
+    private Label generationLabel;
+    @FXML
+    private Label liveCellsLabel;
 
     @FXML
     private ScrollPane scrollableRegion;
@@ -100,7 +106,7 @@ public class Controller implements Initializable {
     @FXML
     private StackPane zoomableRegion;
 
-    private Canvas displayCanvas;
+    private AutomatonDisplay automatonDisplay;
     private Scene scene;
 
     private Automaton automaton;
@@ -111,44 +117,59 @@ public class Controller implements Initializable {
     private int radius;
     private boolean wrapping;
 
-    private Group automatonBoard;
+    IntegerProperty generation = new SimpleIntegerProperty(0);
+    IntegerProperty liveCells = new SimpleIntegerProperty(0);
+
     private ArrayList<Automaton> previousStates = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        width = 100;
-        height = 100;
-        radius = 1;
-        wrapping = false;
-        factory = new UniformStateFactory(BinaryState.DEAD);
-        neighbourhood = new MooreNeighbourhood(width, height, radius, wrapping);
+        // Insert structures
+        //automaton.insertStructure(Structures.GLIDER);
 
-        // Drawing board
-        displayCanvas = new Canvas();
-        displayCanvas.setWidth(width*CELL_SIZE);
-        displayCanvas.setHeight(height*CELL_SIZE);
-
-        Group automatonDisplay = new Group();
-        automatonDisplay.getChildren().add(displayCanvas);
-        scrollableRegion.setContent(createZoomableAutomatonBoard(automatonDisplay));
-
-        displayCanvas.getGraphicsContext2D().setStroke(Color.BLACK);
-        displayCanvas.getGraphicsContext2D().setLineWidth(5);
-        displayCanvas.getGraphicsContext2D().strokeRect(10, 10, width*CELL_SIZE - 20, height*CELL_SIZE - 20);
-
-        automaton = new GameOfLife(factory, neighbourhood, width, height, "23/3", false);
-        previousStates.add(automaton.copy()); // clear automaton
-
-        simulationForward.setOnAction(new StepForwardEventHandler(this));
-        simulationForward.setAccelerator(KeyCombination.keyCombination("Ctrl+A"));
-
-        // Testing
-        automaton.insertStructure(new Structure().glider);
-        //updateDisplay();
+        setUIElementsListners();
     }
 
     public void setStage(Scene scene) {
         this.scene = scene;
+    }
+
+    /**
+     * Creates automaton according to given parameters and displays it
+     */
+    public void createAutomaton(String automatonType, int width, int height, String neighbourhoodType, int neighbourhoodRadius, boolean quadLifeEnabled, boolean wrappingEnabled) {
+        // Creating neighbourhood strategy
+        CellNeighbourhood neighbourhoodStrategy = null;
+        if(neighbourhoodType.equals("Von Neumann Neighbourhood")) neighbourhoodStrategy = new VonNeumannNeighbourhood(width, height, neighbourhoodRadius, wrappingEnabled);
+        else if(neighbourhoodType.equals("Moore Neighbourhood")) neighbourhoodStrategy = new MooreNeighbourhood(width, height, neighbourhoodRadius, wrappingEnabled);
+
+        // Game of Life
+        if(automatonType.equals("Game of Life")) {
+            automaton = new GameOfLife(new UniformStateFactory(BinaryState.DEAD), neighbourhoodStrategy, width, height, "23/3", quadLifeEnabled); // FIXME hardcoded rule
+        }
+
+        // Setting up canvas for drawing and displaying board
+        automatonDisplay = new AutomatonDisplay(width, height, CELL_SIZE);
+
+        // Attaching Canvas to Group for panning and zooming
+        Group automatonGroup = new Group(automatonDisplay.getCanvas());
+        scrollableRegion.setContent(createZoomableAutomatonBoard(automatonGroup));
+
+        // Positions canvas in the center of the viewport
+        zoomableRegion.setMinSize(
+                scrollableRegion.viewportBoundsProperty().get().getWidth(),
+                scrollableRegion.viewportBoundsProperty().get().getHeight()
+        );
+
+        // Set drawing parameters and draw board (with no cells)
+        automatonDisplay.setDrawParameters(Color.BLACK, 2);
+        automatonDisplay.drawBoard();
+
+        // Display automaton
+        displayAutomaton(automaton);
+
+        // Set UI elements to track changes in automaton
+        setUIElementsBindings();
     }
 
     /* createZoomableAutomatonBoard(), figureScrollOffset() and repositionScroller() thanks to solution
@@ -261,105 +282,121 @@ public class Controller implements Initializable {
         }
     }
 
-    private SVGPath createBoard() {
-        SVGPath board = new SVGPath();
-        String path = new String();
-
-        for(int y = 0; y <= height; y++) {
-            path += "M0," + y * CELL_SIZE + " l" + width * CELL_SIZE + ",0 ";
-        }
-
-        for(int x = 0; x <= width; x++) {
-            path += "M" + x * CELL_SIZE + ",0 l0," + height * CELL_SIZE + " ";
-        }
-
-        board.setContent(path);
-        board.setStroke(Color.BLACK);
-        board.setStrokeWidth(1);
-
-        return board;
-    }
-
-    private void createEmptyCells() {
-        SVGPath cell;
-        ObservableList<Node> nodes = automatonBoard.getChildren();
-
-        for(int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                cell = new SVGPath();
-                cell.setContent("M" + (x*CELL_SIZE+1) + "," + (y*CELL_SIZE+1) + " l" + (CELL_SIZE-2) + ",0" + " l0," + (CELL_SIZE-2) +
-                                " l" + (-(CELL_SIZE-2)) + ",0 l0," + (-(CELL_SIZE-2)));
-                cell.setFill(Color.WHITE);
-                System.out.println(cell.getContent());
-                nodes.add(cell);
+    private void setUIElementsBindings() {
+        // Generation
+        generation.addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                generationLabel.setText("Generation: " + newValue);
             }
-        }
+        });
+        generationLabel.setText("Generation: " + generation.get());
+
+        // Live cells
+        liveCells.addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                liveCellsLabel.setText("Live cells: " + newValue);
+            }
+        });
+        liveCellsLabel.setText("Live cells: " + calculateLiveCellsValue());
     }
 
-    private SVGPath fillWithBackgroundColor(Color color) {
-        SVGPath background = new SVGPath();
-        background.setContent("M0,0 l" + width*CELL_SIZE + ",0 l0," + height*CELL_SIZE + " l" + (-width*CELL_SIZE) + ",0 l0," + (-height*CELL_SIZE));
-        background.setFill(color);
+    private void setUIElementsListners() {
+        // Step Forward
+        simulationForward.setOnAction(new StepForwardEventHandler(this));
+        simulationForward.setAccelerator(KeyCombination.keyCombination("K"));
+        simulationForwardBtn.setOnAction(new StepForwardEventHandler(this));
 
-        return background;
+        // Step Backward
+        simulationBackward.setOnAction(new StepBackwardEventHandler(this));
+        simulationBackward.setAccelerator(KeyCombination.keyCombination("J"));
+        simulationBackwardBtn.setOnAction(new StepBackwardEventHandler(this));
     }
 
-    private void updateDisplay() {
+    /**
+     * Displays current automaton's state
+     * @param automaton Automaton to be displayed in the viewport
+     */
+    private void displayAutomaton(Automaton automaton) {
         Automaton.CellIterator iterator = automaton.cellIterator();
-        Automaton.CellIterator previousIterator = previousStates.get(previousStates.size()-1).cellIterator();
-
-        Cell currentCell, oldCell;
-        Coords2D coords;
 
         while(iterator.hasNext()) {
+            automatonDisplay.updateCell(iterator.next());
+        }
+    }
+
+    /**
+     * Similar to @see MainStageController#displayAutomaton(), but only redraws cells, if their state changed
+     * @param automaton Automaton to be updated and displayed in the viewport
+     * @return Born/died balance - how cell population changed since last automaton's state
+     */
+    private int updateAutomatonDisplay(Automaton automaton) {
+        Automaton.CellIterator iterator = automaton.cellIterator();
+        // [OPTIMIZATION] Get the latest automaton state to iterate through to compere if cell state change and needs to be updated
+        // [OPTIMIZATION] Update live cells value with balance instead of counting all alive cells on board
+        Automaton.CellIterator oldIterator = previousStates.get(previousStates.size()-1).cellIterator();
+        Cell currentCell, oldCell;
+        int bornDiedBalance = 0;
+
+        while(iterator.hasNext() && oldIterator.hasNext()) {
             currentCell = iterator.next();
-            oldCell = previousIterator.next();
+            oldCell = oldIterator.next();
 
             if(!currentCell.equals(oldCell)) {
-                coords = (Coords2D) currentCell.getCoords();
-                SVGPath cellPath = drawCellPath(coords.getX(), coords.getY());
-                cellPath.setFill(fillCellState(currentCell.getState()));
-
-                automatonBoard.getChildren().add(cellPath);
+                automatonDisplay.updateCell(currentCell);
+                if(!isAlive(oldCell) && isAlive(currentCell)) bornDiedBalance++;
+                else if(isAlive(oldCell) && !isAlive(currentCell)) bornDiedBalance--;
             }
         }
+
+        return bornDiedBalance;
     }
 
-    private SVGPath drawCellPath(int x, int y) {
-        SVGPath cellPath = new SVGPath();
-        cellPath.setContent("M" + (x * CELL_SIZE + 0.5) + "," + (y * CELL_SIZE + 0.5) +
-                " l" + (CELL_SIZE - 1) + ",0" + " l0," + (CELL_SIZE - 1) +
-                " l" + (-(CELL_SIZE - 1)) + ",0 " + "l0," + (-(CELL_SIZE - 1)));
-        cellPath.setStrokeWidth(0);
-        return cellPath;
+    private boolean isAlive(Cell cell) {
+        CellState state = cell.getState();
+        if(state == BinaryState.ALIVE || state == QuadState.BLUE || state == QuadState.GREEN || state == QuadState.RED || state == QuadState.YELLOW)
+            return true;
+        else
+            return false;
     }
 
-    public Color fillCellState(CellState state) {
-        if(state.equals(BinaryState.ALIVE)) {
-            return Color.BLACK;
-        }
-        else if(state.equals(BinaryState.DEAD)) {
-            return Color.WHITE;
-        }
-        else if(state.equals(QuadState.GREEN)) {
-            return Color.GREEN;
-        }
-        else if(state.equals(QuadState.YELLOW)) {
-            return Color.YELLOW;
-        }
-        else if(state.equals(QuadState.BLUE)) {
-            return Color.BLUE;
-        }
-        else if(state.equals(QuadState.RED)) {
-            return Color.RED;
+    /**
+     * Counts all of the living cells (used when automaton is initialized and in @see MainStageController#stepBackward(), NOT during the simulation)
+     * @return Returns the number of living cells in the automaton
+     */
+    private int calculateLiveCellsValue() {
+        Automaton.CellIterator iterator = automaton.cellIterator();
+
+        int aliveCellsCount = 0;
+        while(iterator.hasNext()) {
+            if(isAlive(iterator.next())) {
+                aliveCellsCount++;
+            }
         }
 
-        return Color.TRANSPARENT;
+        return aliveCellsCount;
     }
 
+    /**
+     * Calculates and display the next state (next generation) of the automaton
+     */
     public void stepForward() {
         previousStates.add(automaton);
         automaton = automaton.nextState();
-        updateDisplay();
+        int bornDiedBalance = updateAutomatonDisplay(automaton);
+        generation.setValue(generation.get() + 1);
+        liveCells.setValue(liveCells.get() + bornDiedBalance);
+    }
+
+    /**
+     * Loads and displays the previous state (older generation) of the automaton
+     */
+    public void stepBackward() {
+        if(previousStates.size() > 1) automaton = previousStates.remove(previousStates.size()-1);
+        else automaton = previousStates.get(0); // initial state
+        displayAutomaton(automaton);
+        if(generation.get() > 0) generation.setValue(generation.get() - 1);
+        liveCells.setValue(calculateLiveCellsValue());
     }
 }
