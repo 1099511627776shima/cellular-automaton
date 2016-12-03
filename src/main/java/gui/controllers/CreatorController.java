@@ -1,0 +1,24 @@
+package gui.controllers;
+
+import automatons.Automaton;
+import javafx.scene.control.Alert;
+
+/**
+ * Created by bzdeco on 30.11.16.
+ */
+public abstract class CreatorController implements Controller {
+    public abstract Automaton createAutomaton();
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public abstract Alert inputIsValid();
+
+    protected int width;
+    protected int height;
+}

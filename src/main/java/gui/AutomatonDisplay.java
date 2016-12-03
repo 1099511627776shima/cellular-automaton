@@ -1,23 +1,26 @@
 package gui;
 
+import automatons.Automaton;
 import cells.Cell;
+import cells.coordinates.Coords1D;
 import cells.coordinates.Coords2D;
-import cells.states.BinaryState;
-import cells.states.CellState;
-import cells.states.QuadState;
+import cells.states.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class AutomatonDisplay {
-    public AutomatonDisplay(int cellSize) {
-        CELL_SIZE = cellSize;
-        canvas = new Canvas(100,100);
+/**
+ * Created by bzdeco on 03.12.16.
+ */
+public abstract class AutomatonDisplay {
+    public AutomatonDisplay(Automaton automaton, int width, int height, int cellSize) {
+        this.CELL_SIZE = cellSize;
+        this.automaton = automaton;
+        setCanvas(width, height);
     }
 
-    public AutomatonDisplay(int width, int height, int cellSize) {
-        this(cellSize);
-        setCanvas(width, height);
+    public void updateAutomaton(Automaton automaton) {
+        this.automaton = automaton;
     }
 
     public void setCanvas(int width, int height) {
@@ -30,6 +33,11 @@ public class AutomatonDisplay {
     public void setDrawParameters(Color strokeColor, double strokeWidth) {
         draw.setStroke(strokeColor);
         draw.setLineWidth(strokeWidth);
+        offset = strokeWidth / 2;
+    }
+
+    public Canvas getCanvas() {
+        return canvas;
     }
 
     public void drawBoard() {
@@ -47,20 +55,17 @@ public class AutomatonDisplay {
         }
     }
 
-    public void updateCell(Cell cell) {
-        Coords2D coords = (Coords2D) cell.getCoords();
-        draw.setFill(getCellFillColor(cell.getState()));
-        double offset = draw.getLineWidth() / 2;
+    public void display() {
+        Automaton.CellIterator iterator = automaton.cellIterator();
 
-        draw.fillRect(offset + coords.getX()*CELL_SIZE, offset + coords.getY()*CELL_SIZE,
-                      CELL_SIZE - 2*offset, CELL_SIZE - 2*offset);
+        while(iterator.hasNext()) {
+            updateCell(iterator.next());
+        }
     }
 
-    public Canvas getCanvas() {
-        return canvas;
-    }
+    protected abstract void updateCell(Cell cell);
 
-    private Color getCellFillColor(CellState state) {
+    protected Color getCellFillColor(CellState state) {
         if(state.equals(BinaryState.ALIVE)) {
             return Color.BLACK;
         }
@@ -79,13 +84,38 @@ public class AutomatonDisplay {
         else if(state.equals(QuadState.RED)) {
             return Color.RED;
         }
+        else if(state.equals(QuadState.DEAD)) {
+            return Color.WHITE;
+        }
+        else if(state.equals(WireElectronState.VOID)) {
+            return new Color(96/255, 9/255, 41/255, 1);
+        }
+        else if(state.equals(WireElectronState.WIRE)) {
+            return Color.LAWNGREEN;
+        }
+        else if(state.equals(WireElectronState.ELECTRON_HEAD)) {
+            return Color.DEEPSKYBLUE;
+        }
+        else if(state.equals(WireElectronState.ELECTRON_TAIL)) {
+            return Color.ORANGERED;
+        }
+        else if(state instanceof LangtonCell) {
+            LangtonCell langtonCell = (LangtonCell)state;
+
+            if(langtonCell.cellState.equals(BinaryState.ALIVE))
+                return Color.BLACK;
+            else
+                return Color.WHITE;
+        }
 
         return Color.TRANSPARENT;
     }
 
-    private Canvas canvas;
-    private int width;
-    private int height;
-    private GraphicsContext draw;
-    final private int CELL_SIZE;
+    protected Automaton automaton;
+    protected Canvas canvas;
+    protected int width;
+    protected int height;
+    protected GraphicsContext draw;
+    final protected int CELL_SIZE;
+    protected double offset;
 }

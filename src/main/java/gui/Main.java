@@ -13,21 +13,22 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        //Parent root = FXMLLoader.load(getClass().getResource("cellular-automaton.fxml"));
         FXMLLoader mainSceneLoader = new FXMLLoader(getClass().getResource("cellular-automaton-nomenu.fxml"));
-        Parent mainSceneView = (Parent)mainSceneLoader.load();
+        Parent mainSceneView = mainSceneLoader.load();
 
-        FXMLLoader newAutomatonSceneLoader = new FXMLLoader(getClass().getResource("popup/new-automaton.fxml"));
-        Parent newAutomatonSceneView = (Parent)newAutomatonSceneLoader.load();
+        FXMLLoader newAutomatonSceneLoader = new FXMLLoader(getClass().getResource("controllers/new-automaton.fxml"));
+        Parent newAutomatonSceneView = newAutomatonSceneLoader.load();
 
         MainStageController mainSceneController = mainSceneLoader.getController();
         CreateNewAutomatonStageController createNewAutomatonSceneController = newAutomatonSceneLoader.getController();
 
         mainStage.initModality(Modality.NONE);
         mainStage.initOwner(primaryStage);
+        mainStage.setResizable(true);
         
         createNewAutomatonStage.initModality(Modality.NONE); // FIXME [BUG] When closing createNewAutomatonStage with APPLICATION_MODAL using (x) it makes the main window unmaximizable
         createNewAutomatonStage.initOwner(mainStage);
+        createNewAutomatonStage.setResizable(false);
 
         final Scene mainScene = new Scene(mainSceneView, 1280, 720);
         final Scene newAutomatonScene = new Scene(newAutomatonSceneView, 600,450);
@@ -40,7 +41,7 @@ public class Main extends Application {
         createNewAutomatonStage.setScene(newAutomatonScene);
         createNewAutomatonStage.show();
 
-        mainSceneController.setStage(mainStage.getScene());
+        mainSceneController.setStage(mainStage.getScene(), createNewAutomatonStage);
         createNewAutomatonSceneController.setStage(createNewAutomatonStage);
         createNewAutomatonSceneController.setMasterController(mainSceneController);
     }
@@ -51,10 +52,6 @@ public class Main extends Application {
     
     private void openCreateNewAutomatonWindow() {
         createNewAutomatonStage.show();
-    }
-
-    public void closeCreateNewAutomatonWindow() {
-        createNewAutomatonStage.close();
     }
     
     private final Stage mainStage = new Stage();
