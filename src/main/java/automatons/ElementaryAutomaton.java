@@ -28,7 +28,7 @@ public class ElementaryAutomaton extends Automaton1Dim {
     @Override
     protected CellState nextCellState(CellState currentState, Set<Cell> neighboursStates) {
         // If cell is on the edge of board it will be dead
-        if(neighboursStates.size() < 2) return BinaryState.DEAD;
+        if(neighboursStates.size() < 2) return BinaryState.DEAD; //FIXME work with CellState
 
         BinaryState currentBinaryState = (BinaryState) currentState;
         Iterator<Cell> neighboursIt = neighboursStates.iterator(); // it must be a LinkedHashSet to preserve adding order

@@ -11,13 +11,14 @@ import java.util.*;
 
 public class WireWorld extends Automaton2Dim {
     // Neighbourhood must be Moore with r = 1 and wrapping enabled (for some extreme schemes)
-    public WireWorld(CellStateFactory stateFactory, int width, int height) {
-        super(stateFactory, new MooreNeighbourhood(width, height, 1, true), width, height);
+    public WireWorld(CellStateFactory stateFactory, int width, int height, boolean wrappingEnabled) {
+        super(stateFactory, new MooreNeighbourhood(width, height, 1, wrappingEnabled), width, height);
+        this.wrappingEnabled = wrappingEnabled;
     }
 
     @Override
     protected Automaton newInstance(CellStateFactory stateFactory, CellNeighbourhood neighbourhood) {
-        return new LangtonAnt(stateFactory, getWidth(), getHeight());
+        return new WireWorld(stateFactory, getWidth(), getHeight(), wrappingEnabled);
     }
 
     @Override
@@ -38,4 +39,6 @@ public class WireWorld extends Automaton2Dim {
                 return currentState;
         }
     }
+
+    private boolean wrappingEnabled; // FIXME do we need to store this
 }
