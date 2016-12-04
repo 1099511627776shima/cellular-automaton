@@ -26,18 +26,36 @@ public class ElementaryAutomaton extends Automaton1Dim {
     }
 
     @Override
-    protected CellState nextCellState(CellState currentState, Set<Cell> neighboursStates) {
-        // If cell is on the edge of board it will be dead
-        if(neighboursStates.size() < 2) return BinaryState.DEAD; //FIXME work with CellState
+    protected CellState nextCellState(Cell currentCell, Set<Cell> neighboursStates) {
 
-        BinaryState currentBinaryState = (BinaryState) currentState;
-        Iterator<Cell> neighboursIt = neighboursStates.iterator(); // it must be a LinkedHashSet to preserve adding order
-        BinaryState leftNeigh, rightNeigh;
+        BinaryState currentBinaryState = (BinaryState) currentCell.getState();
+
+        BinaryState leftNeigh = null, rightNeigh = null;
         String rule = String.format("%8s", Integer.toBinaryString(this.rule).replace(" ", "0"));
 
-        // There are guaranteed 2 neighbours
-        leftNeigh = (BinaryState) neighboursIt.next().getState();
-        rightNeigh = (BinaryState) neighboursIt.next().getState();
+        Coords1D currentCoords = (Coords1D)currentCell.getCoords();
+        // If cell is on the edge of board the nonexistent neighbour is assumed dead
+        if(neighboursStates.size() == 1) {
+            Iterator<Cell> neighboursIt = neighboursStates.iterator();
+            // left edge
+            if(currentCoords.getX() == 0) {
+                leftNeigh = BinaryState.DEAD;
+                rightNeigh = (BinaryState)neighboursIt.next().getState();
+            }
+            //right edge
+            else {
+                leftNeigh = (BinaryState)neighboursIt.next().getState();
+                rightNeigh = BinaryState.DEAD;
+            }
+        }
+        // has both neighbours (due to being not on the verge of board or wrapping enabled)
+        else {
+            for(Cell cell : neighboursStates) {
+                // Checking coords with regard to possible wrapping
+                if(cell.getCoords().equals(new Coords1D(Math.floorMod(currentCoords.getX()-1, getSize())))) leftNeigh = (BinaryState)cell.getState();
+                else rightNeigh = (BinaryState)cell.getState();
+            }
+        }
 
         if(currentBinaryState.equals(BinaryState.ALIVE)) {
             //111

@@ -21,10 +21,10 @@ public class LangtonAnt extends Automaton2Dim {
     }
 
     @Override
-    protected CellState nextCellState(CellState currentState, Set<Cell> neighboursStates) {
+    protected CellState nextCellState(Cell currentCell, Set<Cell> neighboursStates) {
         if(neighboursStates.size() < 4) throw new NotEnoughNeighboursException("One or more neighbours of Langton Cell not identified");
 
-        LangtonCell currentLangtonState = (LangtonCell)currentState;
+        LangtonCell currentLangtonState = (LangtonCell)currentCell.getState();
         LangtonCell newLangtonState;
 
         // Give the new cell an opposite state if there is an ant on it
@@ -33,21 +33,9 @@ public class LangtonAnt extends Automaton2Dim {
 
         // Checking for ants in 4 adjusting cells (Von Neumann Neighbourhood with r = 1 and wrapping enabled)
 
-        // Retrieving position of currentCell
-        Cell left, right, top, bottom;
-        Set<Integer> xCoords = new HashSet<>();
-        Set<Integer> yCoords = new HashSet<>();
-        Coords2D coords;
-        int currentCellXCoord = 0, currentCellYCoord = 0;
-        for(Cell cell : neighboursStates) {
-            coords = (Coords2D)cell.getCoords();
-            if(xCoords.contains(coords.getX())) currentCellXCoord = coords.getX();
-            else xCoords.add(coords.getX());
-            if(yCoords.contains(coords.getY())) currentCellYCoord = coords.getY();
-            else yCoords.add(coords.getY());
-        }
-
-        // Retrieving position of neighbours
+        // Getting positions of neighbours
+        int currentCellXCoord = ((Coords2D)currentCell.getCoords()).getX();
+        int currentCellYCoord = ((Coords2D)currentCell.getCoords()).getY();
         Coords2D leftCoords = new Coords2D(Math.floorMod(currentCellXCoord - 1, getWidth()), currentCellYCoord);
         Coords2D rightCoords = new Coords2D(Math.floorMod(currentCellXCoord + 1, getWidth()), currentCellYCoord);
         Coords2D topCoords = new Coords2D(currentCellXCoord, Math.floorMod(currentCellYCoord - 1, getHeight()));

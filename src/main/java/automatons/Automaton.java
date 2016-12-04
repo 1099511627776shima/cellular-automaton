@@ -31,7 +31,7 @@ public abstract class Automaton {
             // Set of neighbours of current cell from old state
             Set<Cell> mappedNeighbours = mapCoordinates(neighbours);
             // Set new state for current cell in new state based on their old state and old neighbours
-            stateIterator.setState(nextCellState(currentCell.getState(), mappedNeighbours));
+            stateIterator.setState(nextCellState(currentCell, mappedNeighbours));
         }
 
         return newAutomoton;
@@ -65,7 +65,7 @@ public abstract class Automaton {
     protected abstract CellCoordinates initialCoordinates(); // FIXME no arguments?
     protected abstract boolean hasNextCoordinates(CellCoordinates coords);
     protected abstract CellCoordinates nextCoordinates(CellCoordinates coords);
-    protected abstract CellState nextCellState(CellState currentState, Set<Cell> neighboursStates);
+    protected abstract CellState nextCellState(Cell currentCell, Set<Cell> neighboursStates);
 
     public class CellIterator {
         public CellIterator() {
@@ -96,7 +96,7 @@ public abstract class Automaton {
      */
     private Set<Cell> mapCoordinates(Set<CellCoordinates> coordsSet) {
         //FIXME change to HashSet and change ElementaryNeighbourhood
-        Set<Cell> mappedCells = new LinkedHashSet<>();
+        Set<Cell> mappedCells = new HashSet<>();
         for(CellCoordinates coords : coordsSet) {
             mappedCells.add(new Cell(coords, cells.get(coords)));
         }

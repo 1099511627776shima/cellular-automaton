@@ -33,8 +33,9 @@ public class GameOfLife extends Automaton2Dim {
     }
 
     @Override
-    protected CellState nextCellState(CellState currentState, Set<Cell> neighboursStates) {
+    protected CellState nextCellState(Cell currentCell, Set<Cell> neighboursStates) {
         Set<Cell> aliveNeighbours = new HashSet<>();
+        CellState currentState = currentCell.getState();
 
         if(quadLifeEnabled) {
             // Creating alive neighbours set
