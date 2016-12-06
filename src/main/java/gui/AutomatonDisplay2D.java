@@ -23,4 +23,15 @@ public class AutomatonDisplay2D extends AutomatonDisplay {
         draw.fillRect(offset + coords.getX()*CELL_SIZE, offset + coords.getY()*CELL_SIZE,
                       CELL_SIZE - 2*offset, CELL_SIZE - 2*offset);
     }
+
+    @Override
+    public void updateDisplayHistory() {
+
+    }
+
+    @Override
+    public void retrieveFromDisplayHistoryAndDisplay() {
+
+    }
+
 }

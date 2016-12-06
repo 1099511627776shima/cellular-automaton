@@ -62,7 +62,7 @@ public abstract class Automaton {
     }
 
     protected abstract Automaton newInstance(CellStateFactory stateFactory, CellNeighbourhood neighbourhood);
-    protected abstract CellCoordinates initialCoordinates(); // FIXME no arguments?
+    protected abstract CellCoordinates initialCoordinates();
     protected abstract boolean hasNextCoordinates(CellCoordinates coords);
     protected abstract CellCoordinates nextCoordinates(CellCoordinates coords);
     protected abstract CellState nextCellState(Cell currentCell, Set<Cell> neighboursStates);
@@ -95,7 +95,6 @@ public abstract class Automaton {
      *  @return set of cells from given set of coordinates
      */
     private Set<Cell> mapCoordinates(Set<CellCoordinates> coordsSet) {
-        //FIXME change to HashSet and change ElementaryNeighbourhood
         Set<Cell> mappedCells = new HashSet<>();
         for(CellCoordinates coords : coordsSet) {
             mappedCells.add(new Cell(coords, cells.get(coords)));

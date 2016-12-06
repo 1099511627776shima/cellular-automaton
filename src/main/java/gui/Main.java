@@ -1,6 +1,7 @@
 package gui;
 
 import gui.controllers.CreateNewAutomatonStageController;
+import gui.controllers.InsertStructureStageController;
 import gui.controllers.MainStageController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -19,19 +20,28 @@ public class Main extends Application {
         FXMLLoader newAutomatonSceneLoader = new FXMLLoader(getClass().getResource("controllers/new-automaton.fxml"));
         Parent newAutomatonSceneView = newAutomatonSceneLoader.load();
 
+        FXMLLoader insertStructureSceneLoader = new FXMLLoader(getClass().getResource("controllers/insert-structure.fxml"));
+        Parent insertStructureSceneView = insertStructureSceneLoader.load();
+
         MainStageController mainSceneController = mainSceneLoader.getController();
         CreateNewAutomatonStageController createNewAutomatonSceneController = newAutomatonSceneLoader.getController();
+        InsertStructureStageController insertStructureStageController = insertStructureSceneLoader.getController();
 
         mainStage.initModality(Modality.NONE);
         mainStage.initOwner(primaryStage);
         mainStage.setResizable(true);
         
-        createNewAutomatonStage.initModality(Modality.NONE); // FIXME [BUG] When closing createNewAutomatonStage with APPLICATION_MODAL using (x) it makes the main window unmaximizable
+        createNewAutomatonStage.initModality(Modality.NONE);
         createNewAutomatonStage.initOwner(mainStage);
         createNewAutomatonStage.setResizable(false);
 
+        insertStructureStage.initModality(Modality.NONE);
+        insertStructureStage.initOwner(mainStage);
+        insertStructureStage.setResizable(false);
+
         final Scene mainScene = new Scene(mainSceneView, 1280, 720);
         final Scene newAutomatonScene = new Scene(newAutomatonSceneView, 600,450);
+        final Scene insertStructureScene = new Scene(insertStructureSceneView, 600, 450);
 
         mainStage.setTitle("Cellular automaton");
         mainStage.setScene(mainScene);
@@ -41,7 +51,10 @@ public class Main extends Application {
         createNewAutomatonStage.setScene(newAutomatonScene);
         createNewAutomatonStage.show();
 
-        mainSceneController.setStage(mainStage.getScene(), createNewAutomatonStage);
+        insertStructureStage.setTitle("Insert structure");
+        insertStructureStage.setScene(insertStructureScene);
+
+        mainSceneController.setStage(mainStage.getScene(), createNewAutomatonStage, insertStructureStage);
         createNewAutomatonSceneController.setStage(createNewAutomatonStage);
         createNewAutomatonSceneController.setMasterController(mainSceneController);
     }
@@ -56,4 +69,5 @@ public class Main extends Application {
     
     private final Stage mainStage = new Stage();
     private final Stage createNewAutomatonStage = new Stage();
+    private final Stage insertStructureStage = new Stage();
 }

@@ -8,6 +8,8 @@ import gui.AutomatonDisplay;
 import gui.AutomatonDisplay1D;
 import gui.AutomatonDisplay2D;
 import gui.eventhandlers.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -29,12 +31,16 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.net.URL;
+import java.sql.Time;
 import java.util.*;
 
 public class MainStageController implements Initializable, Controller {
     final int CELL_SIZE = 20;
+    final int HISTORY_LIMIT = 5;
+    final double FRAME_DURATION = 25; // in milliseconds
 
     @FXML
     private MenuBar menuBar;
@@ -96,11 +102,14 @@ public class MainStageController implements Initializable, Controller {
     @FXML
     private StackPane zoomableRegion;
 
+    private Group automatonGroup;
     private AutomatonDisplay automatonDisplay;
     private Scene main;
     private Stage createNewAutomaton;
+    private Stage insertStructure;
+    private Timeline simulationTimeline;
 
-    private Automaton automaton;
+    private Automaton currentAutomaton;
 
     IntegerProperty generation = new SimpleIntegerProperty(0);
     IntegerProperty liveCells = new SimpleIntegerProperty(0);
@@ -112,16 +121,17 @@ public class MainStageController implements Initializable, Controller {
         setUIElementsListners();
     }
 
-    public void setStage(Scene main, Stage createNewAutomaton) {
+    public void setStage(Scene main, Stage createNewAutomaton, Stage insertStructure) {
         this.main = main;
         this.createNewAutomaton = createNewAutomaton;
+        this.insertStructure = insertStructure;
     }
 
     /**
-     * Creates automaton according to given parameters and displays it
+     * Creates currentAutomaton according to given parameters and displays it
      */
     public void createAutomaton(Automaton automaton, int width, int height) {
-        this.automaton = automaton;
+        this.currentAutomaton = automaton;
 
         // Setting up canvas for drawing and displaying board
         if(automaton instanceof ElementaryAutomaton) {
@@ -131,7 +141,9 @@ public class MainStageController implements Initializable, Controller {
             automatonDisplay = new AutomatonDisplay2D(automaton, width, height, CELL_SIZE);
 
         // Attaching Canvas to Group for panning and zooming
-        Group automatonGroup = new Group(automatonDisplay.getCanvas());
+        automatonGroup = new Group(automatonDisplay.getCanvas());
+        // Delete if there was any automaton displayed earlier
+        zoomableRegion.getChildren().clear();
         scrollableRegion.setContent(createZoomableAutomatonBoard(automatonGroup));
 
         // Positions canvas in the center of the viewport
@@ -144,11 +156,11 @@ public class MainStageController implements Initializable, Controller {
         automatonDisplay.setDrawParameters(Color.GRAY, 2);
         automatonDisplay.drawBoard();
 
-        // Display automaton
-        //displayAutomaton(automaton);
+        // Display currentAutomaton
+        //displayAutomaton(currentAutomaton);
         automatonDisplay.display();
 
-        // Set UI elements to track changes in automaton
+        // Set UI elements to track changes in currentAutomaton
         setUIElementsBindings();
     }
 
@@ -294,6 +306,18 @@ public class MainStageController implements Initializable, Controller {
         simulationBackward.setAccelerator(KeyCombination.keyCombination("J"));
         simulationBackwardBtn.setOnAction(new StepBackwardEventHandler(this));
 
+        // Run simulation
+        simulationTimeline = new Timeline(new KeyFrame(Duration.millis(FRAME_DURATION), new TimelineEventHandler(this)));
+        simulationTimeline.setCycleCount(Timeline.INDEFINITE);
+        simulationRun.setOnAction(new SimulationRunEventHandler(this));
+        simulationRun.setAccelerator(KeyCombination.keyCombination("R"));
+        simulationRunBtn.setOnAction(new SimulationRunEventHandler(this));
+
+        // Pause simulation
+        simulationPause.setOnAction(new SimulationPauseEventHandler(this));
+        simulationPause.setAccelerator(KeyCombination.keyCombination("P"));
+        simulationPauseBtn.setOnAction(new SimulationPauseEventHandler(this));
+
         // New
         newBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -301,14 +325,22 @@ public class MainStageController implements Initializable, Controller {
                 createNewAutomaton.show();
             }
         });
+
+        // Insert
+        insertBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                insertStructure.show();
+            }
+        });
     }
 
     /**
-     * Displays current automaton's state
-     * @param automaton Automaton to be displayed in the viewport
+     * Displays current currentAutomaton's state
+     * @param currentAutomaton Automaton to be displayed in the viewport
      */
-    /* private void displayAutomaton(Automaton automaton) {
-        Automaton.CellIterator iterator = automaton.cellIterator();
+    /* private void displayAutomaton(Automaton currentAutomaton) {
+        Automaton.CellIterator iterator = currentAutomaton.cellIterator();
 
         while(iterator.hasNext()) {
             automatonDisplay.updateCell(iterator.next());
@@ -318,11 +350,11 @@ public class MainStageController implements Initializable, Controller {
     /**
      * Similar to @see MainStageController#displayAutomaton(), but only redraws cells, if their state changed
      * @param automaton Automaton to be updated and displayed in the viewport
-     * @return Born/died balance - how cell population changed since the last automaton's state
+     * @return Born/died balance - how cell population changed since the last currentAutomaton's state
      */
-    /* private int updateAutomatonDisplay(Automaton automaton) {
-        Automaton.CellIterator iterator = automaton.cellIterator();
-        // [OPTIMIZATION] Get the latest automaton state to iterate through to compere if cell state change and needs to be updated
+    /* private int updateAutomatonDisplay(Automaton currentAutomaton) {
+        Automaton.CellIterator iterator = currentAutomaton.cellIterator();
+        // [OPTIMIZATION] Get the latest currentAutomaton state to iterate through to compere if cell state change and needs to be updated
         // [OPTIMIZATION] Update live cells value with balance instead of counting all alive cells on board
         Automaton.CellIterator oldIterator = previousStates.get(previousStates.size()-1).cellIterator();
         Cell currentCell, oldCell;
@@ -351,11 +383,11 @@ public class MainStageController implements Initializable, Controller {
     }
 
     /**
-     * Counts all of the living cells (used when automaton is initialized and in @see MainStageController#stepBackward(), NOT during the simulation)
-     * @return Returns the number of living cells in the automaton
+     * Counts all of the living cells (used when currentAutomaton is initialized and in @see MainStageController#stepBackward(), NOT during the simulation)
+     * @return Returns the number of living cells in the currentAutomaton
      */
     private int calculateLiveCellsValue() {
-        Automaton.CellIterator iterator = automaton.cellIterator();
+        Automaton.CellIterator iterator = currentAutomaton.cellIterator();
 
         int aliveCellsCount = 0;
         while(iterator.hasNext()) {
@@ -368,28 +400,44 @@ public class MainStageController implements Initializable, Controller {
     }
 
     /**
-     * Calculates and display the next state (next generation) of the automaton
+     * Calculates and display the next state (next generation) of the currentAutomaton
      */
     public void stepForward() {
-        previousStates.add(automaton);
-        automaton = automaton.nextState();
-        //int bornDiedBalance = updateAutomatonDisplay(automaton);
-        generation.setValue(generation.get() + 1);
-        //liveCells.setValue(liveCells.get() + bornDiedBalance);
-        automatonDisplay.updateAutomaton(automaton);
-        automatonDisplay.display();
+        previousStates.add(currentAutomaton); // Add current currentAutomaton to previous states
+        if(previousStates.size() > HISTORY_LIMIT)
+            previousStates.remove(0);
+        automatonDisplay.updateDisplayHistory(); // Memorize recent state for further stepping backwards
+        currentAutomaton = currentAutomaton.nextState(); // Set next currentAutomaton state to be current state
+        automatonDisplay.updateAutomaton(currentAutomaton); // Set new current state to be current satate for display
+        generation.setValue(generation.get() + 1); // Increment generation
+
+        automatonDisplay.display(); // Display current currentAutomaton
     }
 
     /**
-     * Loads and displays the previous state (older generation) of the automaton
+     * Loads and displays the previous state (older generation) of the currentAutomaton.
+     * This function is working very slowly and may highly influence app performance.
      */
     public void stepBackward() {
-        if(previousStates.size() > 1) automaton = previousStates.remove(previousStates.size()-1);
-        else automaton = previousStates.get(0); // initial state
-        //displayAutomaton(automaton);
-        if(generation.get() > 0) generation.setValue(generation.get() - 1);
-        //liveCells.setValue(calculateLiveCellsValue());
-        automatonDisplay.updateAutomaton(automaton);
-        automatonDisplay.display();
+        // If we can go backwards
+        if(generation.get() > 0 && previousStates.size() > 0) {
+            currentAutomaton = previousStates.remove(previousStates.size()-1);
+
+            automatonDisplay.updateAutomaton(currentAutomaton);
+            generation.setValue(generation.get() - 1); // Decrement generation
+
+            automatonDisplay.retrieveFromDisplayHistoryAndDisplay(); // Display previous currentAutomaton
+        }
+        else {
+            System.out.println("Cannot go backwards");
+        }
+    }
+
+    public void runSimulation() {
+        simulationTimeline.play();
+    }
+
+    public void pauseSimulation() {
+        simulationTimeline.stop();
     }
 }

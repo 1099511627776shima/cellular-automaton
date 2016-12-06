@@ -9,6 +9,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
+
 /**
  * Created by bzdeco on 03.12.16.
  */
@@ -23,21 +25,25 @@ public abstract class AutomatonDisplay {
         this.automaton = automaton;
     }
 
-    public void setCanvas(int width, int height) {
+    public void setCanvas(double width, double height) {
         canvas = new Canvas(width*CELL_SIZE, height*CELL_SIZE);
         this.width = width;
         this.height = height;
         draw = canvas.getGraphicsContext2D();
     }
 
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
+    public void clearCanvas() {
+        draw.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
+    }
+
     public void setDrawParameters(Color strokeColor, double strokeWidth) {
         draw.setStroke(strokeColor);
         draw.setLineWidth(strokeWidth);
         offset = strokeWidth / 2;
-    }
-
-    public Canvas getCanvas() {
-        return canvas;
     }
 
     public void drawBoard() {
@@ -64,6 +70,10 @@ public abstract class AutomatonDisplay {
     }
 
     protected abstract void updateCell(Cell cell);
+
+    public abstract void updateDisplayHistory();
+
+    public abstract void retrieveFromDisplayHistoryAndDisplay();
 
     protected Color getCellFillColor(CellState state) {
         if(state.equals(BinaryState.ALIVE)) {
@@ -113,8 +123,8 @@ public abstract class AutomatonDisplay {
 
     protected Automaton automaton;
     protected Canvas canvas;
-    protected int width;
-    protected int height;
+    protected double width;
+    protected double height;
     protected GraphicsContext draw;
     final protected int CELL_SIZE;
     protected double offset;
