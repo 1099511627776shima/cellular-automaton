@@ -18,7 +18,7 @@ public class AutomatonDisplay2D extends AutomatonDisplay {
     protected final void updateCell(Cell cell) {
         Coords2D coords = (Coords2D) cell.getCoords();
 
-        draw.setFill(getCellFillColor(cell.getState()));
+        draw.setFill(CellStateColor.get(cell.getState()));
 
         draw.fillRect(offset + coords.getX()*CELL_SIZE, offset + coords.getY()*CELL_SIZE,
                       CELL_SIZE - 2*offset, CELL_SIZE - 2*offset);

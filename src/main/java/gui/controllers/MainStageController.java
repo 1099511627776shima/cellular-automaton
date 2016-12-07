@@ -40,7 +40,7 @@ import java.util.*;
 public class MainStageController implements Initializable, Controller {
     final int CELL_SIZE = 20;
     final int HISTORY_LIMIT = 5;
-    final double FRAME_DURATION = 25; // in milliseconds
+    final double FRAME_DURATION = 5; // in milliseconds
 
     @FXML
     private MenuBar menuBar;
