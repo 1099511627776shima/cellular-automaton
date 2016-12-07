@@ -7,13 +7,11 @@ import cells.states.*;
 import gui.AutomatonDisplay;
 import gui.AutomatonDisplay1D;
 import gui.AutomatonDisplay2D;
+import gui.Structure;
 import gui.eventhandlers.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -23,11 +21,13 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.*;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -40,8 +40,9 @@ import java.util.*;
 public class MainStageController implements Initializable, Controller {
     final int CELL_SIZE = 20;
     final int HISTORY_LIMIT = 5;
-    final double FRAME_DURATION = 5; // in milliseconds
+    final double FRAME_DURATION = 100; // in milliseconds
 
+    @FXML private BorderPane window;
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -110,9 +111,11 @@ public class MainStageController implements Initializable, Controller {
     private Timeline simulationTimeline;
 
     private Automaton currentAutomaton;
+    private Structure structureToInsert;
 
     IntegerProperty generation = new SimpleIntegerProperty(0);
     IntegerProperty liveCells = new SimpleIntegerProperty(0);
+    BooleanProperty insertModeEnabled = new SimpleBooleanProperty(false);
 
     private ArrayList<Automaton> previousStates = new ArrayList<>();
 
@@ -139,6 +142,8 @@ public class MainStageController implements Initializable, Controller {
         }
         else
             automatonDisplay = new AutomatonDisplay2D(automaton, width, height, CELL_SIZE);
+
+        setAutomatonDisplayMouseClickDetection();
 
         // Attaching Canvas to Group for panning and zooming
         automatonGroup = new Group(automatonDisplay.getCanvas());
@@ -293,6 +298,16 @@ public class MainStageController implements Initializable, Controller {
         });
         liveCells.setValue(calculateLiveCellsValue());
         liveCellsLabel.setText("Live cells: " + liveCells.get());
+
+        // Insert mode
+        insertModeEnabled.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                // if got enabled
+                if(newValue) main.setCursor(Cursor.CROSSHAIR);
+                else main.setCursor(Cursor.DEFAULT);
+            }
+        });
     }
 
     private void setUIElementsListners() {
@@ -335,6 +350,40 @@ public class MainStageController implements Initializable, Controller {
         });
     }
 
+    private void setAutomatonDisplayMouseClickDetection() {
+        // Clicking on displayed automaton when insert mode is enabled
+        automatonDisplay.getCanvas().setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                int clickedCellXCoord = (int) (event.getX() / CELL_SIZE);
+                int clickedCellYCoord = (int) (event.getY() / CELL_SIZE);
+                currentAutomaton.insertStructure(structureToInsert.getPositionedStructure(
+                        clickedCellXCoord,
+                        clickedCellYCoord
+                ));
+                automatonDisplay.updateAutomaton(currentAutomaton);
+                automatonDisplay.display();
+
+                insertModeEnabled.setValue(false);
+            }
+        });
+
+        // Clicking anywhere else than canvas with insert mode enabled
+        window.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                // If user clicked outside of automatonDisplay canvas
+                if(insertModeEnabled.getValue() && !(event.getPickResult().getIntersectedNode() instanceof Canvas)) {
+                    // Turn off insert mode
+                    insertModeEnabled.setValue(false);
+                    structureToInsert = null;
+                }
+                else
+                    event.consume();
+            }
+        });
+    }
+
     /**
      * Displays current currentAutomaton's state
      * @param currentAutomaton Automaton to be displayed in the viewport
@@ -373,6 +422,11 @@ public class MainStageController implements Initializable, Controller {
 
         return bornDiedBalance;
     } */
+
+    public void turnOnInsertMode(Structure insertedStructure) {
+        structureToInsert = insertedStructure;
+        insertModeEnabled.setValue(true);
+    }
 
     private boolean isAlive(Cell cell) {
         CellState state = cell.getState();
@@ -429,7 +483,8 @@ public class MainStageController implements Initializable, Controller {
             automatonDisplay.retrieveFromDisplayHistoryAndDisplay(); // Display previous currentAutomaton
         }
         else {
-            System.out.println("Cannot go backwards");
+            // TODO add loger on bottom toolbar
+            //System.out.println("Cannot go backwards");
         }
     }
 

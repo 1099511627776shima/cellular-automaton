@@ -13,13 +13,13 @@ import java.util.Map;
  * Created by bzdeco on 06.12.16.
  */
 public class Structure {
-    public Structure(String structureName, String structureDescription, Map<Coords2D, CellState> structureMap, Coords2D pivotPoint, int structureWidth, int structureHeight) {
+    public Structure(String structureName, String structureDescription, Map<Coords2D, CellState> structureMap, Coords2D pivotPoint, int width, int height) {
         this.structureName = structureName;
         this.structureDescription = structureDescription;
         this.structureMap = structureMap;
         this.pivotPoint = pivotPoint;
-        this.structureWidth = structureWidth;
-        this.structureHeight = structureHeight;
+        this.width = width;
+        this.height = height;
     }
 
     /**
@@ -48,16 +48,16 @@ public class Structure {
         return structureName;
     }
 
-    public String getDescription() {
-        return structureDescription;
-    }
-
     public int getWidth() {
-        return structureWidth;
+        return width;
     }
 
     public int getHeight() {
-        return structureHeight;
+        return height;
+    }
+
+    public String getDescription() {
+        return structureDescription;
     }
 
     /* public String toString() {
@@ -72,8 +72,8 @@ public class Structure {
 
     private String structureName;
     private String structureDescription;
-    private int structureWidth;
-    private int structureHeight;
+    private int width;
+    private int height;
     /** Map containing positions of live cells RELATIVE to the pivotPoint */
     private Map<Coords2D, CellState> structureMap;
     private Coords2D pivotPoint;

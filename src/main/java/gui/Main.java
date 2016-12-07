@@ -57,6 +57,8 @@ public class Main extends Application {
         mainSceneController.setStage(mainStage.getScene(), createNewAutomatonStage, insertStructureStage);
         createNewAutomatonSceneController.setStage(createNewAutomatonStage);
         createNewAutomatonSceneController.setMasterController(mainSceneController);
+        insertStructureStageController.setStage(insertStructureStage);
+        insertStructureStageController.setMasterController(mainSceneController);
     }
 
     public static void main(String[] args) {

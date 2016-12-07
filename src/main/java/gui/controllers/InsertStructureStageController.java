@@ -3,11 +3,14 @@ package gui.controllers;
 import cells.coordinates.CellCoordinates;
 import cells.coordinates.Coords2D;
 import cells.states.CellState;
+import gui.BinaryStructures;
 import gui.CellStateColor;
 import gui.Structure;
 import gui.eventhandlers.ListViewSelectionEventHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -17,6 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.Map;
@@ -36,6 +40,14 @@ public class InsertStructureStageController implements Initializable, Controller
         setupNewCanvas();
 
         setUIElementsListners();
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public void setMasterController(MainStageController mainController) {
+        this.mainController = mainController;
     }
 
     public ListView<String> getListView() {
@@ -108,8 +120,17 @@ public class InsertStructureStageController implements Initializable, Controller
 
     private void setUIElementsListners() {
         structuresList.setOnMouseClicked(new ListViewSelectionEventHandler(this));
+        insertBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                mainController.turnOnInsertMode(BinaryStructures.getStructure(structuresList.getSelectionModel().getSelectedItem().toLowerCase()));
+                stage.close();
+            }
+        });
     }
 
+    private Stage stage;
+    private MainStageController mainController;
     private Canvas structureCanvas;
     @FXML private AnchorPane canvasAnchorPane;
     private double width;
