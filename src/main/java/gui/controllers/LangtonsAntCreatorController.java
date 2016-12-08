@@ -42,6 +42,11 @@ public class LangtonsAntCreatorController extends CreatorController implements I
     }
 
     @Override
+    public String getMode() {
+        return "binary";
+    }
+
+    @Override
     public Alert inputIsValid() {
         CreateErrorAlert alert = new CreateErrorAlert();
 

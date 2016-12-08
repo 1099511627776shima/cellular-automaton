@@ -55,6 +55,11 @@ public class WireWorldCreatorController extends CreatorController implements Ini
     }
 
     @Override
+    public String getMode() {
+        return "wireworld";
+    }
+
+    @Override
     public Alert inputIsValid() {
         CreateErrorAlert alert = new CreateErrorAlert();
 

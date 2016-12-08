@@ -2,6 +2,7 @@
 
 <?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -29,33 +30,20 @@
           </Menu>
           <Menu fx:id="menuEdit" mnemonicParsing="false" text="Edit">
             <items>
-              <MenuItem fx:id="editInsert" mnemonicParsing="false" text="Insert custom structure...">
+                  <MenuItem fx:id="editInsertLibrary" mnemonicParsing="false" text="Insert structure from library">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="I" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <Menu fx:id="menuEditInsert" mnemonicParsing="false" text="Insert basic structure">
-                    <items>
-                      <MenuItem fx:id="insertGlider" mnemonicParsing="false" text="Glider" />
-                    </items>
-                  </Menu>
+                  <CheckMenuItem fx:id="editManualInsertCheck" mnemonicParsing="false" text="Manual insert mode" />
             </items>
           </Menu>
           <Menu fx:id="menuSimulation" mnemonicParsing="false" text="Simulation">
             <items>
-                  <MenuItem fx:id="simulationRun" mnemonicParsing="false" text="Run">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
+                  <MenuItem fx:id="simulationRun" mnemonicParsing="false" text="Run" />
                   <MenuItem fx:id="simulationPause" mnemonicParsing="false" text="Pause">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem fx:id="simulationRestart" mnemonicParsing="false" text="Restart">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="X" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
@@ -114,7 +102,6 @@
                         <Separator orientation="VERTICAL" prefHeight="26.0" prefWidth="0.0" />
                         <Button fx:id="simulationRunBtn" alignment="CENTER" layoutX="81.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Run" />
                         <Button fx:id="simulationPauseBtn" alignment="CENTER" layoutX="162.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Pause" />
-                        <Button fx:id="simulationResetBtn" alignment="CENTER" layoutX="233.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Reset" />
                         <Button fx:id="simulationForwardBtn" alignment="CENTER" layoutX="304.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Forward" />
                         <Button fx:id="simulationBackwardBtn" alignment="CENTER" layoutX="375.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Backward" />
                     </items>

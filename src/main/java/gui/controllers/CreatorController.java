@@ -17,6 +17,8 @@ public abstract class CreatorController implements Controller {
         return height;
     }
 
+    public abstract String getMode();
+
     public abstract Alert inputIsValid();
 
     protected int width;

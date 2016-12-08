@@ -1,10 +1,8 @@
 package gui.eventhandlers;
 
-import cells.states.BinaryState;
-import gui.BinaryStructures;
+import gui.Structures;
 import gui.Structure;
 import gui.controllers.InsertStructureStageController;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 
@@ -19,7 +17,7 @@ public class ListViewSelectionEventHandler implements EventHandler<MouseEvent> {
     @Override
     public void handle(MouseEvent event) {
         String selectedStructureName = controller.getListView().getSelectionModel().getSelectedItem();
-        Structure selectedStructure = BinaryStructures.getStructure(selectedStructureName.toLowerCase());
+        Structure selectedStructure = Structures.getStructure(selectedStructureName.toLowerCase(), controller.isQuadLifeEnabled());
 
         controller.displaySelectedStructure(selectedStructure);
     }

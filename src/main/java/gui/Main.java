@@ -54,7 +54,7 @@ public class Main extends Application {
         insertStructureStage.setTitle("Insert structure");
         insertStructureStage.setScene(insertStructureScene);
 
-        mainSceneController.setStage(mainStage.getScene(), createNewAutomatonStage, insertStructureStage);
+        mainSceneController.setStage(mainStage.getScene(), createNewAutomatonStage, insertStructureStage, insertStructureStageController);
         createNewAutomatonSceneController.setStage(createNewAutomatonStage);
         createNewAutomatonSceneController.setMasterController(mainSceneController);
         insertStructureStageController.setStage(insertStructureStage);

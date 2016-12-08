@@ -53,6 +53,11 @@ public class ElementaryAutomatonCreatorController extends CreatorController impl
     }
 
     @Override
+    public String getMode() {
+        return "binary";
+    }
+
+    @Override
     public Alert inputIsValid() {
         CreateErrorAlert alert = new CreateErrorAlert();
 

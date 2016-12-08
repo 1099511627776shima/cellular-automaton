@@ -3,6 +3,7 @@ package gui.controllers;
 import automatons.Automaton;
 import automatons.ElementaryAutomaton;
 import cells.Cell;
+import cells.coordinates.Coords2D;
 import cells.states.*;
 import gui.AutomatonDisplay;
 import gui.AutomatonDisplay1D;
@@ -42,57 +43,74 @@ public class MainStageController implements Initializable, Controller {
     final int HISTORY_LIMIT = 5;
     final double FRAME_DURATION = 100; // in milliseconds
 
-    @FXML private BorderPane window;
+    @FXML
+    private BorderPane window;
+
     @FXML
     private MenuBar menuBar;
+
     @FXML
     private Menu menuFile;
+
     @FXML
     private MenuItem fileExit;
+
     @FXML
     private Menu menuEdit;
+
     @FXML
-    private MenuItem editInsert;
+    private MenuItem editInsertLibrary;
+
     @FXML
-    private Menu menuEditInsert;
-    @FXML
-    private MenuItem insertGlider;
+    private CheckMenuItem editManualInsertCheck;
+
     @FXML
     private Menu menuSimulation;
+
     @FXML
     private MenuItem simulationRun;
+
     @FXML
     private MenuItem simulationPause;
-    @FXML
-    private MenuItem simulationRestart;
+
     @FXML
     private MenuItem simulationForward;
+
     @FXML
     private MenuItem simulationBackward;
+
     @FXML
     private Menu menuHelp;
+
     @FXML
     private MenuItem helpAbout;
-    @FXML
-    private AnchorPane displayAnchor;
-    @FXML
-    private Button newBtn;
-    @FXML
-    private Button insertBtn;
-    @FXML
-    private Button simulationRunBtn;
-    @FXML
-    private Button simulationPauseBtn;
-    @FXML
-    private Button simulationResetBtn;
-    @FXML
-    private Button simulationForwardBtn;
-    @FXML
-    private Button simulationBackwardBtn;
+
     @FXML
     private Label generationLabel;
+
     @FXML
     private Label liveCellsLabel;
+
+    @FXML
+    private AnchorPane displayAnchor;
+
+    @FXML
+    private Button newBtn;
+
+    @FXML
+    private Button insertBtn;
+
+    @FXML
+    private Button simulationRunBtn;
+
+    @FXML
+    private Button simulationPauseBtn;
+
+    @FXML
+    private Button simulationForwardBtn;
+
+    @FXML
+    private Button simulationBackwardBtn;
 
     @FXML
     private ScrollPane scrollableRegion;
@@ -108,6 +126,7 @@ public class MainStageController implements Initializable, Controller {
     private Scene main;
     private Stage createNewAutomaton;
     private Stage insertStructure;
+    private InsertStructureStageController insertStructureController;
     private Timeline simulationTimeline;
 
     private Automaton currentAutomaton;
@@ -116,6 +135,8 @@ public class MainStageController implements Initializable, Controller {
     IntegerProperty generation = new SimpleIntegerProperty(0);
     IntegerProperty liveCells = new SimpleIntegerProperty(0);
     BooleanProperty insertModeEnabled = new SimpleBooleanProperty(false);
+    private boolean manualInsertModeEnabled = false;
+    private String mode;
 
     private ArrayList<Automaton> previousStates = new ArrayList<>();
 
@@ -124,17 +145,23 @@ public class MainStageController implements Initializable, Controller {
         setUIElementsListners();
     }
 
-    public void setStage(Scene main, Stage createNewAutomaton, Stage insertStructure) {
+    public void setStage(Scene main, Stage createNewAutomaton, Stage insertStructure, InsertStructureStageController insertStructureController) {
         this.main = main;
         this.createNewAutomaton = createNewAutomaton;
         this.insertStructure = insertStructure;
+        this.insertStructureController = insertStructureController;
+    }
+
+    public String getCurrentAutomatonMode() {
+        return mode;
     }
 
     /**
      * Creates currentAutomaton according to given parameters and displays it
      */
-    public void createAutomaton(Automaton automaton, int width, int height) {
+    public void createAutomaton(Automaton automaton, int width, int height, String mode) {
         this.currentAutomaton = automaton;
+        this.mode = mode;
 
         // Setting up canvas for drawing and displaying board
         if(automaton instanceof ElementaryAutomaton) {
@@ -241,7 +268,8 @@ public class MainStageController implements Initializable, Controller {
         scrollContent.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                main.setCursor(Cursor.DEFAULT);
+                // If we are not in insert mode
+                if(!insertModeEnabled.getValue()) main.setCursor(Cursor.DEFAULT);
             }
         });
 
@@ -303,11 +331,14 @@ public class MainStageController implements Initializable, Controller {
         insertModeEnabled.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                // if got enabled
-                if(newValue) main.setCursor(Cursor.CROSSHAIR);
-                else main.setCursor(Cursor.DEFAULT);
+                changeCursorInInsertMode(newValue);
             }
         });
+    }
+
+    private void changeCursorInInsertMode(boolean mode) {
+        if(mode) main.setCursor(Cursor.CROSSHAIR);
+        else main.setCursor(Cursor.DEFAULT);
     }
 
     private void setUIElementsListners() {
@@ -345,7 +376,31 @@ public class MainStageController implements Initializable, Controller {
         insertBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                insertStructure.show();
+                if(currentAutomaton != null) {
+                    insertStructure.show();
+                    insertStructureController.parseQuadLifeEnabled();
+                }
+            }
+        });
+
+        // Manual insert mode
+        editManualInsertCheck.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                // selected
+                if(editManualInsertCheck.isSelected()) {
+                    insertModeEnabled.setValue(true);
+                    manualInsertModeEnabled = true;
+
+                    Map<Coords2D, CellState> singleCell = new HashMap<>();
+                    singleCell.put(new Coords2D(0, 0), BinaryState.ALIVE); // TODO determine state from tool
+                    structureToInsert = new Structure("", "", singleCell, new Coords2D(0,0), 1, 1);
+                }
+                // deselected
+                else {
+                    insertModeEnabled.setValue(false);
+                    manualInsertModeEnabled = false;
+                }
             }
         });
     }
@@ -355,16 +410,18 @@ public class MainStageController implements Initializable, Controller {
         automatonDisplay.getCanvas().setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                int clickedCellXCoord = (int) (event.getX() / CELL_SIZE);
-                int clickedCellYCoord = (int) (event.getY() / CELL_SIZE);
-                currentAutomaton.insertStructure(structureToInsert.getPositionedStructure(
-                        clickedCellXCoord,
-                        clickedCellYCoord
-                ));
-                automatonDisplay.updateAutomaton(currentAutomaton);
-                automatonDisplay.display();
+                if(insertModeEnabled.getValue()) {
+                    int clickedCellXCoord = (int) (event.getX() / CELL_SIZE);
+                    int clickedCellYCoord = (int) (event.getY() / CELL_SIZE);
+                    currentAutomaton.insertStructure(structureToInsert.getPositionedStructure(
+                            clickedCellXCoord,
+                            clickedCellYCoord
+                    ));
+                    automatonDisplay.updateAutomaton(currentAutomaton);
+                    automatonDisplay.display();
 
-                insertModeEnabled.setValue(false);
+                    if(!manualInsertModeEnabled) insertModeEnabled.setValue(false);
+                }
             }
         });
 
@@ -373,7 +430,8 @@ public class MainStageController implements Initializable, Controller {
             @Override
             public void handle(MouseEvent event) {
                 // If user clicked outside of automatonDisplay canvas
-                if(insertModeEnabled.getValue() && !(event.getPickResult().getIntersectedNode() instanceof Canvas)) {
+                // In manual insert it can be only turned off by user
+                if(insertModeEnabled.getValue() && !manualInsertModeEnabled && !(event.getPickResult().getIntersectedNode() instanceof Canvas)) {
                     // Turn off insert mode
                     insertModeEnabled.setValue(false);
                     structureToInsert = null;
@@ -383,45 +441,6 @@ public class MainStageController implements Initializable, Controller {
             }
         });
     }
-
-    /**
-     * Displays current currentAutomaton's state
-     * @param currentAutomaton Automaton to be displayed in the viewport
-     */
-    /* private void displayAutomaton(Automaton currentAutomaton) {
-        Automaton.CellIterator iterator = currentAutomaton.cellIterator();
-
-        while(iterator.hasNext()) {
-            automatonDisplay.updateCell(iterator.next());
-        }
-    } */
-
-    /**
-     * Similar to @see MainStageController#displayAutomaton(), but only redraws cells, if their state changed
-     * @param automaton Automaton to be updated and displayed in the viewport
-     * @return Born/died balance - how cell population changed since the last currentAutomaton's state
-     */
-    /* private int updateAutomatonDisplay(Automaton currentAutomaton) {
-        Automaton.CellIterator iterator = currentAutomaton.cellIterator();
-        // [OPTIMIZATION] Get the latest currentAutomaton state to iterate through to compere if cell state change and needs to be updated
-        // [OPTIMIZATION] Update live cells value with balance instead of counting all alive cells on board
-        Automaton.CellIterator oldIterator = previousStates.get(previousStates.size()-1).cellIterator();
-        Cell currentCell, oldCell;
-        int bornDiedBalance = 0;
-
-        while(iterator.hasNext() && oldIterator.hasNext()) {
-            currentCell = iterator.next();
-            oldCell = oldIterator.next();
-
-            if(!currentCell.equals(oldCell)) {
-                automatonDisplay.updateCell(currentCell);
-                if(!isAlive(oldCell) && isAlive(currentCell)) bornDiedBalance++;
-                else if(isAlive(oldCell) && !isAlive(currentCell)) bornDiedBalance--;
-            }
-        }
-
-        return bornDiedBalance;
-    } */
 
     public void turnOnInsertMode(Structure insertedStructure) {
         structureToInsert = insertedStructure;

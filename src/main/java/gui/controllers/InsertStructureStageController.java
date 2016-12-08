@@ -3,7 +3,7 @@ package gui.controllers;
 import cells.coordinates.CellCoordinates;
 import cells.coordinates.Coords2D;
 import cells.states.CellState;
-import gui.BinaryStructures;
+import gui.Structures;
 import gui.CellStateColor;
 import gui.Structure;
 import gui.eventhandlers.ListViewSelectionEventHandler;
@@ -32,7 +32,7 @@ import java.util.ResourceBundle;
 public class InsertStructureStageController implements Initializable, Controller {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        structuresList.getItems().addAll(structuresNames);
+        structuresList.getItems().addAll(structuresNamesGoL);
 
         width = 270;
         height = 270;
@@ -73,6 +73,20 @@ public class InsertStructureStageController implements Initializable, Controller
         setupNewCanvas();
         drawBoard(size);
         displayStructureCells(structure.getPositionedStructure((size - 1)/2, (size - 1)/2));
+    }
+
+    public void parseQuadLifeEnabled() {
+        String mode = mainController.getCurrentAutomatonMode();
+        if(mode.equals("quad"))
+            quadLifeEnabled = true;
+        else
+            quadLifeEnabled = false;
+
+        // TODO wireworld
+    }
+
+    public boolean isQuadLifeEnabled() {
+        return quadLifeEnabled;
     }
 
     private void setupNewCanvas() {
@@ -123,7 +137,7 @@ public class InsertStructureStageController implements Initializable, Controller
         insertBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                mainController.turnOnInsertMode(BinaryStructures.getStructure(structuresList.getSelectionModel().getSelectedItem().toLowerCase()));
+                mainController.turnOnInsertMode(Structures.getStructure(structuresList.getSelectionModel().getSelectedItem().toLowerCase(), isQuadLifeEnabled()));
                 stage.close();
             }
         });
@@ -131,6 +145,8 @@ public class InsertStructureStageController implements Initializable, Controller
 
     private Stage stage;
     private MainStageController mainController;
+    private boolean quadLifeEnabled;
+
     private Canvas structureCanvas;
     @FXML private AnchorPane canvasAnchorPane;
     private double width;
@@ -142,7 +158,7 @@ public class InsertStructureStageController implements Initializable, Controller
     @FXML private Label structureDescription;
     @FXML private Button insertBtn;
     @FXML private ListView<String> structuresList;
-    private ObservableList<String> structuresNames = FXCollections.observableArrayList(
+    private ObservableList<String> structuresNamesGoL = FXCollections.observableArrayList(
             "Glider",
             "Gosper Glider Gun",
             "Lightweight spaceship",
@@ -162,9 +178,12 @@ public class InsertStructureStageController implements Initializable, Controller
             "Tumbler/Fountain",
             "The R-pentonimo",
             "Diehard",
-            "Acorn",
-            "Garden of Eden",
-            "Smallest immortal",
-            "5x5 immortal"
+            "Acorn"
+    );
+    private ObservableList<String> structuresNamesWW = FXCollections.observableArrayList(
+            "AND",
+            "OR",
+            "NAND",
+            "Clock"
     );
 }

@@ -107,7 +107,7 @@ public class CreateNewAutomatonStageController implements Initializable, Control
             public void handle(ActionEvent event) {
                 Alert alert = automatonCreatorController.inputIsValid();
                 if(alert == null) {
-                    mainController.createAutomaton(automatonCreatorController.createAutomaton(), automatonCreatorController.getWidth(), automatonCreatorController.getHeight());
+                    mainController.createAutomaton(automatonCreatorController.createAutomaton(), automatonCreatorController.getWidth(), automatonCreatorController.getHeight(), automatonCreatorController.getMode());
                     stage.close();
                 }
                 else {

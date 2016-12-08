@@ -95,6 +95,14 @@ public class GameOfLifeCreatorController extends CreatorController implements In
         );
     }
 
+    @Override
+    public String getMode() {
+        if(quadLifeToggle.isSelected())
+            return "quad";
+        else
+            return "binary";
+    }
+
     public Alert inputIsValid() {
         CreateErrorAlert alert = new CreateErrorAlert();
 
