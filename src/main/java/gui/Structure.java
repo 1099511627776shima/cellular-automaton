@@ -13,11 +13,10 @@ import java.util.Map;
  * Created by bzdeco on 06.12.16.
  */
 public class Structure {
-    public Structure(String structureName, String structureDescription, Map<Coords2D, CellState> structureMap, Coords2D pivotPoint, int width, int height) {
+    public Structure(String structureName, String structureDescription, Map<Coords2D, CellState> structureMap, int width, int height) {
         this.structureName = structureName;
         this.structureDescription = structureDescription;
         this.structureMap = structureMap;
-        this.pivotPoint = pivotPoint;
         this.width = width;
         this.height = height;
     }

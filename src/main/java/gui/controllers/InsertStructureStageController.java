@@ -6,7 +6,6 @@ import cells.states.CellState;
 import gui.Structures;
 import gui.CellStateColor;
 import gui.Structure;
-import gui.eventhandlers.ListViewSelectionEventHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,6 +17,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -32,14 +32,12 @@ import java.util.ResourceBundle;
 public class InsertStructureStageController implements Initializable, Controller {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        structuresList.getItems().addAll(structuresNamesGoL);
-
         width = 270;
         height = 270;
 
         setupNewCanvas();
 
-        setUIElementsListners();
+        setUIElementsListeners();
     }
 
     public void setStage(Stage stage) {
@@ -54,39 +52,39 @@ public class InsertStructureStageController implements Initializable, Controller
         return structuresList;
     }
 
-    public void displaySelectedStructure(Structure structure) {
-        setStructureNameLabel(structure.getName().substring(0,1).toUpperCase() + structure.getName().substring(1));
-        setStructureDescriptionLabel(structure.getDescription());
+    public void displaySelectedStructure() {
+        setStructureNameLabel(selectedStructure.getName().substring(0,1).toUpperCase() + selectedStructure.getName().substring(1));
+        setStructureDescriptionLabel(selectedStructure.getDescription());
 
         // Create display on Canvas
         int size;
-        if(structure.getWidth() <= 9) {
-            if(structure.getWidth() % 2 == 0)
+        if(Math.max(selectedStructure.getWidth(), selectedStructure.getHeight()) <= 9) {
+            if(selectedStructure.getWidth() % 2 == 0)
                 size = 8;
             else
                 size = 9;
         }
         else
-            size = structure.getWidth();
+            size = Math.max(selectedStructure.getWidth(),selectedStructure.getHeight());
 
         canvasAnchorPane.getChildren().remove(structureCanvas);
         setupNewCanvas();
         drawBoard(size);
-        displayStructureCells(structure.getPositionedStructure((size - 1)/2, (size - 1)/2));
+        displayStructureCells(selectedStructure.getPositionedStructure((size - 1)/2, (size - 1)/2));
     }
 
-    public void parseQuadLifeEnabled() {
-        String mode = mainController.getCurrentAutomatonMode();
-        if(mode.equals("quad"))
-            quadLifeEnabled = true;
+    public void configureStructureListOnWindowDisplay() {
+        mode = mainController.getCurrentAutomatonMode();
+
+        structuresList.getItems().clear();
+        if(mode.equals("wireworld")) {
+            structuresList.getItems().addAll(structuresNamesWW);
+        }
         else
-            quadLifeEnabled = false;
-
-        // TODO wireworld
-    }
-
-    public boolean isQuadLifeEnabled() {
-        return quadLifeEnabled;
+            structuresList.getItems().addAll(structuresNamesGoL);
+        structuresList.getSelectionModel().select(0);
+        selectedStructure = Structures.getStructure(structuresList.getSelectionModel().getSelectedItem().toLowerCase(), mode);
+        displaySelectedStructure();
     }
 
     private void setupNewCanvas() {
@@ -94,7 +92,6 @@ public class InsertStructureStageController implements Initializable, Controller
         canvasAnchorPane.getChildren().add(structureCanvas);
         draw = structureCanvas.getGraphicsContext2D();
         draw.setStroke(Color.GRAY);
-        draw.setFill(Color.WHITE);
         draw.setLineWidth(2);
         offset = 1;
     }
@@ -118,8 +115,14 @@ public class InsertStructureStageController implements Initializable, Controller
 
     private void drawBoard(int size) {
         cellSize = width / size;
+
+        if(mode.equals("wireworld")) draw.setFill(Color.BLACK);
+        else draw.setFill(Color.WHITE);
+
+        // Background
         draw.fillRect(0, 0, width, height);
 
+        // Grid
         for(int y = 0; y < size; y++) {
             draw.moveTo(0, y * cellSize);
             draw.lineTo(size * cellSize, y * cellSize);
@@ -132,12 +135,20 @@ public class InsertStructureStageController implements Initializable, Controller
         }
     }
 
-    private void setUIElementsListners() {
-        structuresList.setOnMouseClicked(new ListViewSelectionEventHandler(this));
+    private void setUIElementsListeners() {
+        structuresList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                String selectedStructureName = structuresList.getSelectionModel().getSelectedItem();
+                selectedStructure = Structures.getStructure(selectedStructureName.toLowerCase(), mode);
+
+                displaySelectedStructure();
+            }
+        });
         insertBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                mainController.turnOnInsertMode(Structures.getStructure(structuresList.getSelectionModel().getSelectedItem().toLowerCase(), isQuadLifeEnabled()));
+                mainController.turnOnInsertStructureMode(Structures.getStructure(structuresList.getSelectionModel().getSelectedItem().toLowerCase(), mode));
                 stage.close();
             }
         });
@@ -145,7 +156,8 @@ public class InsertStructureStageController implements Initializable, Controller
 
     private Stage stage;
     private MainStageController mainController;
-    private boolean quadLifeEnabled;
+    private String mode;
+    private Structure selectedStructure;
 
     private Canvas structureCanvas;
     @FXML private AnchorPane canvasAnchorPane;
@@ -183,7 +195,9 @@ public class InsertStructureStageController implements Initializable, Controller
     private ObservableList<String> structuresNamesWW = FXCollections.observableArrayList(
             "AND",
             "OR",
+            "XOR",
             "NAND",
+            "NOT",
             "Clock"
     );
 }

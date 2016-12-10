@@ -135,10 +135,17 @@ public class GameOfLifeCreatorController extends CreatorController implements In
                 if(quadLifeToggle.isSelected()) {
                     quadLifeToggle.setText("Enabled");
                     initialStateComboBox.setItems(initialStateQuadLife);
+                    // QuadLife makes sense only with Conway's GoL rules
+                    survivesTextField.setText("2 3");
+                    survivesTextField.disableProperty().setValue(true);
+                    isBornTextField.setText("3");
+                    isBornTextField.disableProperty().setValue(true);
                 }
                 else {
                     quadLifeToggle.setText("Disabled");
                     initialStateComboBox.setItems(initialState);
+                    survivesTextField.disableProperty().setValue(false);
+                    isBornTextField.disableProperty().setValue(false);
                 }
             }
         });

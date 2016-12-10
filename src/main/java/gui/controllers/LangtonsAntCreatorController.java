@@ -65,10 +65,10 @@ public class LangtonsAntCreatorController extends CreatorController implements I
     public void initialize(URL location, ResourceBundle resources) {
         initialStateComboBox.setItems(initialStates);
 
-        setUIElementsListners();
+        setUIElementsListeners();
     }
 
-    private void setUIElementsListners() {
+    private void setUIElementsListeners() {
         wrappingToggle.setOnAction(new SimpleToggleEventHandler(wrappingToggle));
     }
 

@@ -5,10 +5,7 @@ import automatons.ElementaryAutomaton;
 import cells.Cell;
 import cells.coordinates.Coords2D;
 import cells.states.*;
-import gui.AutomatonDisplay;
-import gui.AutomatonDisplay1D;
-import gui.AutomatonDisplay2D;
-import gui.Structure;
+import gui.*;
 import gui.eventhandlers.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -24,6 +21,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -31,11 +29,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
-import java.sql.Time;
 import java.util.*;
 
 public class MainStageController implements Initializable, Controller {
@@ -43,83 +41,61 @@ public class MainStageController implements Initializable, Controller {
     final int HISTORY_LIMIT = 5;
     final double FRAME_DURATION = 100; // in milliseconds
 
-    @FXML
-    private BorderPane window;
+    @FXML private BorderPane window;
 
-    @FXML
-    private MenuBar menuBar;
+    @FXML private MenuBar menuBar;
 
-    @FXML
-    private Menu menuFile;
+    @FXML private Menu menuFile;
 
-    @FXML
-    private MenuItem fileExit;
+    @FXML private MenuItem fileExit;
 
-    @FXML
-    private Menu menuEdit;
+    @FXML private Menu menuEdit;
 
-    @FXML
-    private MenuItem editInsertLibrary;
+    @FXML private MenuItem editInsertLibrary;
 
-    @FXML
-    private CheckMenuItem editManualInsertCheck;
+    @FXML private CheckMenuItem editManualInsertCheck;
 
-    @FXML
-    private Menu menuSimulation;
+    @FXML private Menu menuSimulation;
 
-    @FXML
-    private MenuItem simulationRun;
+    @FXML private MenuItem simulationRun;
 
-    @FXML
-    private MenuItem simulationPause;
+    @FXML private MenuItem simulationPause;
 
-    @FXML
-    private MenuItem simulationForward;
+    @FXML private MenuItem simulationForward;
 
-    @FXML
-    private MenuItem simulationBackward;
+    @FXML private MenuItem simulationBackward;
 
-    @FXML
-    private Menu menuHelp;
+    @FXML private Menu menuHelp;
 
-    @FXML
-    private MenuItem helpAbout;
+    @FXML private MenuItem helpAbout;
 
-    @FXML
-    private Label generationLabel;
+    @FXML private Label generationValueLabel;
 
-    @FXML
-    private Label liveCellsLabel;
+    @FXML private Label liveCellsValueLabel;
 
-    @FXML
-    private AnchorPane displayAnchor;
+    @FXML private AnchorPane displayAnchor;
 
-    @FXML
-    private Button newBtn;
+    @FXML private Button newBtn;
 
-    @FXML
-    private Button insertBtn;
+    @FXML private Button insertBtn;
 
-    @FXML
-    private Button simulationRunBtn;
+    @FXML private Button simulationRunBtn;
 
-    @FXML
-    private Button simulationPauseBtn;
+    @FXML private Button simulationPauseBtn;
 
-    @FXML
-    private Button simulationForwardBtn;
+    @FXML private Button simulationForwardBtn;
 
-    @FXML
-    private Button simulationBackwardBtn;
+    @FXML private Button simulationBackwardBtn;
 
-    @FXML
-    private ScrollPane scrollableRegion;
+    @FXML private ScrollPane scrollableRegion;
 
-    @FXML
-    private Group scrollContent;
+    @FXML private Group scrollContent;
 
-    @FXML
-    private StackPane zoomableRegion;
+    @FXML private StackPane zoomableRegion;
+
+    @FXML private Label insertModeLabel;
+
+    @FXML private Rectangle statePickerRect;
 
     private Group automatonGroup;
     private AutomatonDisplay automatonDisplay;
@@ -128,14 +104,15 @@ public class MainStageController implements Initializable, Controller {
     private Stage insertStructure;
     private InsertStructureStageController insertStructureController;
     private Timeline simulationTimeline;
+    private StatePicker statePicker;
 
     private Automaton currentAutomaton;
     private Structure structureToInsert;
 
-    IntegerProperty generation = new SimpleIntegerProperty(0);
-    IntegerProperty liveCells = new SimpleIntegerProperty(0);
-    BooleanProperty insertModeEnabled = new SimpleBooleanProperty(false);
-    private boolean manualInsertModeEnabled = false;
+    private IntegerProperty generation = new SimpleIntegerProperty(0);
+    private IntegerProperty liveCells = new SimpleIntegerProperty(0);
+    private BooleanProperty insertModeEnabled = new SimpleBooleanProperty(false);
+    private BooleanProperty manualInsertModeEnabled = new SimpleBooleanProperty(false);
     private String mode;
 
     private ArrayList<Automaton> previousStates = new ArrayList<>();
@@ -159,9 +136,14 @@ public class MainStageController implements Initializable, Controller {
     /**
      * Creates currentAutomaton according to given parameters and displays it
      */
-    public void createAutomaton(Automaton automaton, int width, int height, String mode) {
+    void createAutomaton(Automaton automaton, int width, int height, String mode) {
         this.currentAutomaton = automaton;
         this.mode = mode;
+        generation.setValue(0);
+
+        // Setup StatePicker
+        statePicker = new StatePicker(statePickerRect, mode);
+        if(!manualInsertModeEnabled.getValue()) statePicker.disable();
 
         // Setting up canvas for drawing and displaying board
         if(automaton instanceof ElementaryAutomaton) {
@@ -170,6 +152,7 @@ public class MainStageController implements Initializable, Controller {
         else
             automatonDisplay = new AutomatonDisplay2D(automaton, width, height, CELL_SIZE);
 
+        if(insertModeEnabled.getValue()) automatonDisplay.getCanvas().setCursor(Cursor.CROSSHAIR);
         setAutomatonDisplayMouseClickDetection();
 
         // Attaching Canvas to Group for panning and zooming
@@ -224,20 +207,17 @@ public class MainStageController implements Initializable, Controller {
 
                 double scaleFactor = (event.getDeltaY() > 0) ? SCALE_DELTA : 1 / SCALE_DELTA;
 
-                // amount of scrolling in each direction in scrollContent coordinate
-                // units
+                // amount of scrolling in each direction in scrollContent coordinate units
                 Point2D scrollOffset = figureScrollOffset(scrollContent, scrollableRegion);
 
                 automaton.setScaleX(automaton.getScaleX() * scaleFactor);
                 automaton.setScaleY(automaton.getScaleY() * scaleFactor);
 
-                // move viewport so that old center remains in the center after the
-                // scaling
+                // move viewport so that old center remains in the center after the scaling
                 repositionScroller(scrollContent, scrollableRegion, scaleFactor, scrollOffset);
             }
         });
 
-        // Panning
         final ObjectProperty<Point2D> lastMouseCoordinates = new SimpleObjectProperty<Point2D>();
         scrollContent.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
@@ -246,30 +226,26 @@ public class MainStageController implements Initializable, Controller {
             }
         });
 
+        // Panning
         scrollContent.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                main.setCursor(Cursor.CLOSED_HAND);
+                if(event.isMiddleButtonDown()) {
+                    // Disable insert mode (both manual and normal) when dragging detected
+                    manualInsertModeEnabled.setValue(false);
 
-                double deltaX = event.getX() - lastMouseCoordinates.get().getX();
-                double extraWidth = scrollContent.getLayoutBounds().getWidth() - scrollableRegion.getViewportBounds().getWidth();
-                double deltaH = deltaX * (scrollableRegion.getHmax() - scrollableRegion.getHmin()) / extraWidth;
-                double desiredH = (Double.isNaN(scrollableRegion.getHvalue()) ? 0 : scrollableRegion.getHvalue()) - deltaH;
-                scrollableRegion.setHvalue(Math.max(0, Math.min(scrollableRegion.getHmax(), desiredH)));
+                    double deltaX = event.getX() - lastMouseCoordinates.get().getX();
+                    double extraWidth = scrollContent.getLayoutBounds().getWidth() - scrollableRegion.getViewportBounds().getWidth();
+                    double deltaH = deltaX * (scrollableRegion.getHmax() - scrollableRegion.getHmin()) / extraWidth;
+                    double desiredH = (Double.isNaN(scrollableRegion.getHvalue()) ? 0 : scrollableRegion.getHvalue()) - deltaH;
+                    scrollableRegion.setHvalue(Math.max(0, Math.min(scrollableRegion.getHmax(), desiredH)));
 
-                double deltaY = event.getY() - lastMouseCoordinates.get().getY();
-                double extraHeight = scrollContent.getLayoutBounds().getHeight() - scrollableRegion.getViewportBounds().getHeight();
-                double deltaV = deltaY * (scrollableRegion.getVmax() - scrollableRegion.getVmin()) / extraHeight;
-                double desiredV = (Double.isNaN(scrollableRegion.getVvalue()) ? 0 : scrollableRegion.getVvalue()) - deltaV;
-                scrollableRegion.setVvalue(Math.max(0, Math.min(scrollableRegion.getVmax(), desiredV)));
-            }
-        });
-
-        scrollContent.setOnMouseReleased(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                // If we are not in insert mode
-                if(!insertModeEnabled.getValue()) main.setCursor(Cursor.DEFAULT);
+                    double deltaY = event.getY() - lastMouseCoordinates.get().getY();
+                    double extraHeight = scrollContent.getLayoutBounds().getHeight() - scrollableRegion.getViewportBounds().getHeight();
+                    double deltaV = deltaY * (scrollableRegion.getVmax() - scrollableRegion.getVmin()) / extraHeight;
+                    double desiredV = (Double.isNaN(scrollableRegion.getVvalue()) ? 0 : scrollableRegion.getVvalue()) - deltaV;
+                    scrollableRegion.setVvalue(Math.max(0, Math.min(scrollableRegion.getVmax(), desiredV)));
+                }
             }
         });
 
@@ -312,33 +288,50 @@ public class MainStageController implements Initializable, Controller {
         generation.addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                generationLabel.setText("Generation: " + newValue);
+                generationValueLabel.setText("" + newValue);
             }
         });
-        generationLabel.setText("Generation: " + generation.get());
 
         // Live cells
         liveCells.addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                liveCellsLabel.setText("Live cells: " + newValue);
+                liveCellsValueLabel.setText("" + newValue);
             }
         });
         liveCells.setValue(calculateLiveCellsValue());
-        liveCellsLabel.setText("Live cells: " + liveCells.get());
 
         // Insert mode
         insertModeEnabled.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                changeCursorInInsertMode(newValue);
+                if(newValue) {
+                    automatonDisplay.getCanvas().setCursor(Cursor.CROSSHAIR);
+                }
+                else {
+                    automatonDisplay.getCanvas().setCursor(Cursor.DEFAULT);
+                }
             }
         });
-    }
 
-    private void changeCursorInInsertMode(boolean mode) {
-        if(mode) main.setCursor(Cursor.CROSSHAIR);
-        else main.setCursor(Cursor.DEFAULT);
+        // Manual insert mode
+        manualInsertModeEnabled.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue) {
+                    insertModeEnabled.setValue(true);
+                    insertModeLabel.setText("Insert Mode: ON");
+                    statePicker.enable();
+                    editManualInsertCheck.setSelected(true);
+                }
+                else {
+                    insertModeEnabled.setValue(false);
+                    insertModeLabel.setText("Insert Mode: OFF");
+                    statePicker.disable();
+                    editManualInsertCheck.setSelected(false);
+                }
+            }
+        });
     }
 
     private void setUIElementsListners() {
@@ -378,7 +371,7 @@ public class MainStageController implements Initializable, Controller {
             public void handle(ActionEvent event) {
                 if(currentAutomaton != null) {
                     insertStructure.show();
-                    insertStructureController.parseQuadLifeEnabled();
+                    insertStructureController.configureStructureListOnWindowDisplay();
                 }
             }
         });
@@ -389,28 +382,38 @@ public class MainStageController implements Initializable, Controller {
             public void handle(ActionEvent event) {
                 // selected
                 if(editManualInsertCheck.isSelected()) {
-                    insertModeEnabled.setValue(true);
-                    manualInsertModeEnabled = true;
-
-                    Map<Coords2D, CellState> singleCell = new HashMap<>();
-                    singleCell.put(new Coords2D(0, 0), BinaryState.ALIVE); // TODO determine state from tool
-                    structureToInsert = new Structure("", "", singleCell, new Coords2D(0,0), 1, 1);
+                    manualInsertModeEnabled.setValue(true);
                 }
                 // deselected
                 else {
-                    insertModeEnabled.setValue(false);
-                    manualInsertModeEnabled = false;
+                    manualInsertModeEnabled.setValue(false);
                 }
+            }
+        });
+
+        // State picker (enabled in manual insert mode)
+        statePickerRect.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                statePickerRect.setFill(Color.BLACK);
             }
         });
     }
 
     private void setAutomatonDisplayMouseClickDetection() {
+
         // Clicking on displayed automaton when insert mode is enabled
         automatonDisplay.getCanvas().setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                // If we are in insert mode
                 if(insertModeEnabled.getValue()) {
+                    if(manualInsertModeEnabled.getValue()) {
+                        Map<Coords2D, CellState> singleCell = new HashMap<>();
+                        singleCell.put(new Coords2D(0, 0), statePicker.getState());
+                        structureToInsert = new Structure("", "", singleCell, 1, 1);
+                    }
+
                     int clickedCellXCoord = (int) (event.getX() / CELL_SIZE);
                     int clickedCellYCoord = (int) (event.getY() / CELL_SIZE);
                     currentAutomaton.insertStructure(structureToInsert.getPositionedStructure(
@@ -420,7 +423,8 @@ public class MainStageController implements Initializable, Controller {
                     automatonDisplay.updateAutomaton(currentAutomaton);
                     automatonDisplay.display();
 
-                    if(!manualInsertModeEnabled) insertModeEnabled.setValue(false);
+                    // Disable insert possibility if structure was inserted
+                    if(!manualInsertModeEnabled.getValue()) insertModeEnabled.setValue(false);
                 }
             }
         });
@@ -431,7 +435,7 @@ public class MainStageController implements Initializable, Controller {
             public void handle(MouseEvent event) {
                 // If user clicked outside of automatonDisplay canvas
                 // In manual insert it can be only turned off by user
-                if(insertModeEnabled.getValue() && !manualInsertModeEnabled && !(event.getPickResult().getIntersectedNode() instanceof Canvas)) {
+                if(insertModeEnabled.getValue() && !manualInsertModeEnabled.getValue() && !(event.getPickResult().getIntersectedNode() instanceof Canvas)) {
                     // Turn off insert mode
                     insertModeEnabled.setValue(false);
                     structureToInsert = null;
@@ -442,8 +446,10 @@ public class MainStageController implements Initializable, Controller {
         });
     }
 
-    public void turnOnInsertMode(Structure insertedStructure) {
+    public void turnOnInsertStructureMode(Structure insertedStructure) {
         structureToInsert = insertedStructure;
+        // Disable manual insert mode if it was enabled
+        manualInsertModeEnabled.setValue(false);
         insertModeEnabled.setValue(true);
     }
 

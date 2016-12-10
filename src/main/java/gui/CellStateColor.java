@@ -30,16 +30,16 @@ public class CellStateColor {
             return Color.WHITE;
         }
         else if(state.equals(WireElectronState.VOID)) {
-            return new Color(96/255, 9/255, 41/255, 1);
+            return Color.BLACK;
         }
         else if(state.equals(WireElectronState.WIRE)) {
             return Color.LAWNGREEN;
         }
         else if(state.equals(WireElectronState.ELECTRON_HEAD)) {
-            return Color.DEEPSKYBLUE;
+            return new Color(0, 128/255, 1, 1);
         }
         else if(state.equals(WireElectronState.ELECTRON_TAIL)) {
-            return Color.ORANGERED;
+            return new Color(1, 64/255, 0, 1);
         }
         else if(state instanceof LangtonCell) {
             LangtonCell langtonCell = (LangtonCell)state;
