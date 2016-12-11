@@ -21,8 +21,8 @@ public class ElementaryAutomaton extends Automaton1Dim {
     }
 
     @Override
-    protected Automaton newInstance(CellStateFactory stateFactory, CellNeighbourhood neighbourStrategy) {
-        return new ElementaryAutomaton(stateFactory, neighbourStrategy, getSize(), rule);
+    protected Automaton newInstance() {
+        return new ElementaryAutomaton(getStateFactory(), getNeighbourStrategy(), getSize(), rule);
     }
 
     @Override

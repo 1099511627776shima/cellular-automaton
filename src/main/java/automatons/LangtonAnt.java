@@ -2,7 +2,6 @@ package automatons;
 
 import cells.Cell;
 import cells.coordinates.Coords2D;
-import cells.neighbourhood.CellNeighbourhood;
 import cells.neighbourhood.VonNeumannNeighbourhood;
 import cells.states.*;
 import exceptions.NotEnoughNeighboursException;
@@ -12,12 +11,13 @@ import java.util.*;
 public class LangtonAnt extends Automaton2Dim {
     // Neighbourhood must be Von Neumann with r = 1 and wrapping enabled;
     public LangtonAnt(CellStateFactory stateFactory, int width, int height) {
+        // Fixed neighbourhood (VonNeumann with wrapping enabled)
         super(stateFactory, new VonNeumannNeighbourhood(width, height, 1, true), width, height);
     }
 
     @Override
-    protected Automaton newInstance(CellStateFactory stateFactory, CellNeighbourhood neighbourhood) {
-        return new LangtonAnt(stateFactory, getWidth(), getHeight());
+    protected Automaton newInstance() {
+        return new LangtonAnt(getStateFactory(), getWidth(), getHeight());
     }
 
     @Override
@@ -54,47 +54,72 @@ public class LangtonAnt extends Automaton2Dim {
 
         // Ants from left cell
         int antsToAdd;
+        AntState searchedState;
         if(leftState.hasAnt()) {
             if(leftState.cellState.equals(BinaryState.DEAD))
-                antsToAdd = Collections.frequency(leftState.antState, AntState.NORTH);
+                searchedState = AntState.NORTH;
+                //antsToAdd = Collections.frequency(leftState.antStates, AntState.NORTH);
             else
-                antsToAdd = Collections.frequency(leftState.antState, AntState.SOUTH);
+                searchedState = AntState.SOUTH;
+                //antsToAdd = Collections.frequency(leftState.antStates, AntState.SOUTH);
 
-            for(int i=0; i < antsToAdd; i++)
-                newLangtonState.addAnt(AntState.EAST);
+            /*for(int i=0; i < antsToAdd; i++)
+                newLangtonState.addAnt(AntState.EAST);*/
+            for(int antID : leftState.antIDs) {
+                if(leftState.antStates.get(antID).equals(searchedState))
+                    newLangtonState.addAnt(antID, AntState.EAST);
+            }
         }
 
         // Ants from right cell
         if(rightState.hasAnt()) {
             if(rightState.cellState.equals(BinaryState.DEAD))
-                antsToAdd = Collections.frequency(rightState.antState, AntState.SOUTH);
+                searchedState = AntState.SOUTH;
+                //antsToAdd = Collections.frequency(rightState.antStates, AntState.SOUTH);
             else
-                antsToAdd = Collections.frequency(rightState.antState, AntState.NORTH);
+                searchedState = AntState.NORTH;
+                //antsToAdd = Collections.frequency(rightState.antStates, AntState.NORTH);
 
-            for(int i=0; i < antsToAdd; i++)
-                newLangtonState.addAnt(AntState.WEST);
+            /*for(int i=0; i < antsToAdd; i++)
+                newLangtonState.addAnt(AntState.WEST);*/
+            for(int antID : rightState.antIDs) {
+                if (rightState.antStates.get(antID).equals(searchedState))
+                    newLangtonState.addAnt(antID, AntState.WEST);
+            }
         }
 
         // Ants from top cell
         if(topState.hasAnt()) {
             if(topState.cellState.equals(BinaryState.DEAD))
-                antsToAdd = Collections.frequency(topState.antState, AntState.EAST);
+                searchedState = AntState.EAST;
+                //antsToAdd = Collections.frequency(topState.antStates, AntState.EAST);
             else
-                antsToAdd = Collections.frequency(topState.antState, AntState.WEST);
+                searchedState = AntState.WEST;
+                //antsToAdd = Collections.frequency(topState.antStates, AntState.WEST);
 
-            for(int i=0; i < antsToAdd; i++)
-                newLangtonState.addAnt(AntState.SOUTH);
+            /* for(int i=0; i < antsToAdd; i++)
+                newLangtonState.addAnt(AntState.SOUTH); */
+            for(int antID : topState.antIDs) {
+                if (topState.antStates.get(antID).equals(searchedState))
+                    newLangtonState.addAnt(antID, AntState.SOUTH);
+            }
         }
 
         // Ants from bottom cell
         if(bottomState.hasAnt()) {
             if(bottomState.cellState.equals(BinaryState.DEAD))
-                antsToAdd = Collections.frequency(bottomState.antState, AntState.WEST);
+                searchedState = AntState.WEST;
+                //antsToAdd = Collections.frequency(bottomState.antStates, AntState.WEST);
             else
-                antsToAdd = Collections.frequency(bottomState.antState, AntState.EAST);
+                searchedState = AntState.EAST;
+                //antsToAdd = Collections.frequency(bottomState.antStates, AntState.EAST);
 
-            for(int i=0; i < antsToAdd; i++)
-                newLangtonState.addAnt(AntState.NORTH);
+            /*for(int i=0; i < antsToAdd; i++)
+                newLangtonState.addAnt(AntState.NORTH);*/
+            for(int antID : bottomState.antIDs) {
+                if (bottomState.antStates.get(antID).equals(searchedState))
+                    newLangtonState.addAnt(antID, AntState.NORTH);
+            }
         }
 
         return newLangtonState;

@@ -15,7 +15,7 @@ public class AutomatonDisplay2D extends AutomatonDisplay {
     }
 
     @Override
-    protected final void updateCell(Cell cell) {
+    protected void updateCell(Cell cell) {
         Coords2D coords = (Coords2D) cell.getCoords();
 
         draw.setFill(CellStateColor.get(cell.getState()));

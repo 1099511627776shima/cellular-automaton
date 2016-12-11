@@ -13,12 +13,8 @@ public abstract class Automaton {
         this.neighbourStrategy = neighbourStrategy;
     }
 
-    public Automaton copy() {
-        return newInstance(stateFactory, neighbourStrategy);
-    }
-
     public Automaton nextState() {
-        Automaton newAutomoton = newInstance(stateFactory, neighbourStrategy);
+        Automaton newAutomoton = newInstance();
         // Iterates through the Automaton representing old state
         CellIterator modelIterator = this.cellIterator();
         // Iterates through the Automaton representing new state
@@ -41,9 +37,13 @@ public abstract class Automaton {
         cells.putAll(structure);
     }
 
-    /* public void setCells(Map<CellCoordinates, CellState> cells) {
-        this.cells = cells;
-    } */
+    public CellStateFactory getStateFactory() {
+        return stateFactory;
+    }
+
+    public CellNeighbourhood getNeighbourStrategy() {
+        return neighbourStrategy;
+    }
 
     @Override
     public boolean equals(Object other) {
@@ -61,7 +61,7 @@ public abstract class Automaton {
         return new CellIterator();
     }
 
-    protected abstract Automaton newInstance(CellStateFactory stateFactory, CellNeighbourhood neighbourhood);
+    protected abstract Automaton newInstance();
     protected abstract CellCoordinates initialCoordinates();
     protected abstract boolean hasNextCoordinates(CellCoordinates coords);
     protected abstract CellCoordinates nextCoordinates(CellCoordinates coords);
@@ -69,21 +69,20 @@ public abstract class Automaton {
 
     public class CellIterator {
         public CellIterator() {
-            currentState = initialCoordinates();
+            currentCoordinates = initialCoordinates();
         }
         public boolean hasNext() {
-            return hasNextCoordinates(currentState);
+            return hasNextCoordinates(currentCoordinates);
         }
         public Cell next() {
-            Cell cell = new Cell(nextCoordinates(currentState), cells.get(nextCoordinates(currentState)));
-            currentState = cell.getCoords();
+            Cell cell = new Cell(nextCoordinates(currentCoordinates), cells.get(nextCoordinates(currentCoordinates)));
+            currentCoordinates = cell.getCoords();
             return cell;
         }
         public void setState(CellState state) {
-            // FIXME call setCellState from Automaton?
-            Automaton.this.setCellState(currentState, state);
+            Automaton.this.setCellState(currentCoordinates, state);
         }
-        private CellCoordinates currentState;
+        private CellCoordinates currentCoordinates;
     }
 
     private void setCellState(CellCoordinates coords, CellState state) {
@@ -91,8 +90,8 @@ public abstract class Automaton {
     }
 
     /** Returns set of cells of given coordinates.
-     *  @param coordsSet coordinates for cells to be checked
-     *  @return set of cells from given set of coordinates
+     *  @param coordsSet Set of coordinates for created cells
+     *  @return Set of cells made from given set of coordinates
      */
     private Set<Cell> mapCoordinates(Set<CellCoordinates> coordsSet) {
         Set<Cell> mappedCells = new HashSet<>();

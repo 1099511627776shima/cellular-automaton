@@ -41,6 +41,7 @@
                      </accelerator>
                   </MenuItem>
                   <CheckMenuItem fx:id="editManualInsertCheck" mnemonicParsing="false" text="Manual insert mode" />
+                  <CheckMenuItem fx:id="editAddAntCheck" disable="true" mnemonicParsing="false" text="Add ant mode" />
             </items>
           </Menu>
           <Menu fx:id="menuSimulation" mnemonicParsing="false" text="Simulation">
@@ -77,8 +78,14 @@
          <children>
             <AnchorPane layoutX="10.0" layoutY="10.0" maxHeight="30.0" prefHeight="30.0" prefWidth="322.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <HBox prefHeight="30.0" prefWidth="322.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <HBox layoutX="-127.0" prefHeight="30.0" prefWidth="449.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-127.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
+                        <HBox fx:id="antPickerBox" alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="30.0" prefWidth="120.0" spacing="10.0" visible="false">
+                           <children>
+                              <Label fx:id="insertModeLabel1" text="Ant Picker:" />
+                              <AnchorPane fx:id="antPickerPane" maxHeight="20.0" prefHeight="20.0" prefWidth="20.0" />
+                           </children>
+                        </HBox>
                         <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0" spacing="10.0">
                            <children>
                               <Label fx:id="insertModeLabel" text="Insert Mode: OFF" />

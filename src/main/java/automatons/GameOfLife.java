@@ -28,8 +28,8 @@ public class GameOfLife extends Automaton2Dim {
     }
 
     @Override
-    protected Automaton newInstance(CellStateFactory stateFactory, CellNeighbourhood neighbourhood) {
-        return new GameOfLife(stateFactory, neighbourhood, getWidth(), getHeight(), survivalConditions, birthConditions, quadLifeEnabled);
+    protected Automaton newInstance() {
+        return new GameOfLife(getStateFactory(), getNeighbourStrategy(), getWidth(), getHeight(), survivalConditions, birthConditions, quadLifeEnabled);
     }
 
     @Override
@@ -108,8 +108,8 @@ public class GameOfLife extends Automaton2Dim {
 
     /** Enables or disables Quad Life (4 different on states, sets rule to 23/3) */
     private boolean quadLifeEnabled;
-    /** Set of integers defining how many neighbours alive cell needs to survive */
+    /** Set of integers defining how many neighbours live cell needs to survive */
     private Set<Integer> survivalConditions = new HashSet<>();
-    /** Set of integers defining how many neighbours dead cell needs to be born */
+    /** Set of integers defining how many neighbours dead cell needs to become live */
     private Set<Integer> birthConditions = new HashSet<>();
 }

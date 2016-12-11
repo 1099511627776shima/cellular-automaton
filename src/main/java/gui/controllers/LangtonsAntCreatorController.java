@@ -25,7 +25,6 @@ public class LangtonsAntCreatorController extends CreatorController implements I
         height = Integer.parseInt(heightTextField.getText());
 
         CellStateFactory cellStateFactory;
-        boolean wrapping = wrappingToggle.isSelected();
 
         if(initialStateComboBox.getValue().equals(initialStates.get(0))) {
             cellStateFactory = new UniformStateFactory(new LangtonCell(BinaryState.DEAD));
@@ -43,7 +42,7 @@ public class LangtonsAntCreatorController extends CreatorController implements I
 
     @Override
     public String getMode() {
-        return "binary";
+        return "ant";
     }
 
     @Override
@@ -64,32 +63,16 @@ public class LangtonsAntCreatorController extends CreatorController implements I
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initialStateComboBox.setItems(initialStates);
-
-        setUIElementsListeners();
-    }
-
-    private void setUIElementsListeners() {
-        wrappingToggle.setOnAction(new SimpleToggleEventHandler(wrappingToggle));
     }
 
 
-    @FXML
-    private GridPane settings;
+    @FXML private GridPane settings;
 
-    @FXML
-    private TextField widthTextField;
+    @FXML private TextField widthTextField;
 
-    @FXML
-    private TextField heightTextField;
+    @FXML private TextField heightTextField;
 
-    @FXML
-    private ComboBox<String> initialStateComboBox;
-
-    @FXML
-    private ToggleButton wrappingToggle;
-
-    @FXML
-    private Button addAntBtn;
+    @FXML private ComboBox<String> initialStateComboBox;
 
     private ObservableList<String> initialStates = FXCollections.observableArrayList(
             "dead",

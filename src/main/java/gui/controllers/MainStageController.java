@@ -2,7 +2,9 @@ package gui.controllers;
 
 import automatons.Automaton;
 import automatons.ElementaryAutomaton;
+import automatons.LangtonAnt;
 import cells.Cell;
+import cells.coordinates.CellCoordinates;
 import cells.coordinates.Coords2D;
 import cells.states.*;
 import gui.*;
@@ -21,12 +23,12 @@ import javafx.geometry.Point2D;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -53,6 +55,9 @@ public class MainStageController implements Initializable, Controller {
     @FXML private MenuItem editInsertLibrary;
 
     @FXML private CheckMenuItem editManualInsertCheck;
+
+    @FXML
+    private CheckMenuItem editAddAntCheck;
 
     @FXML private Menu menuSimulation;
 
@@ -96,7 +101,11 @@ public class MainStageController implements Initializable, Controller {
 
     @FXML private Rectangle statePickerRect;
 
+    @FXML private AnchorPane antPickerPane;
+
     @FXML private TextField stepTextField;
+
+    @FXML private HBox antPickerBox;
 
     private Group automatonGroup;
     private AutomatonDisplay automatonDisplay;
@@ -106,6 +115,7 @@ public class MainStageController implements Initializable, Controller {
     private InsertStructureStageController insertStructureController;
     private Timeline simulationTimeline;
     private StatePicker statePicker;
+    private AntPicker antPicker;
 
     private Automaton currentAutomaton;
     private Structure structureToInsert;
@@ -115,13 +125,14 @@ public class MainStageController implements Initializable, Controller {
     private IntegerProperty frameDuration = new SimpleIntegerProperty(250); // in milliseconds
     private BooleanProperty insertModeEnabled = new SimpleBooleanProperty(false);
     private BooleanProperty manualInsertModeEnabled = new SimpleBooleanProperty(false);
+    private BooleanProperty addAntModeEnabled = new SimpleBooleanProperty(false);
     private String mode;
 
     private ArrayList<Automaton> previousStates = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setUIElementsListners();
+        setUIEventHandlers();
     }
 
     public void setStage(Scene main, Stage createNewAutomaton, Stage insertStructure, InsertStructureStageController insertStructureController) {
@@ -147,9 +158,34 @@ public class MainStageController implements Initializable, Controller {
         statePicker = new StatePicker(statePickerRect, mode);
         if(!manualInsertModeEnabled.getValue()) statePicker.disable();
 
+        // Setup UI for ant mode
+        if(mode.equals("ant")) {
+            // Ant Picker
+            antPicker = new AntPicker(antPickerPane, CELL_SIZE);
+            antPickerBox.setVisible(true);
+            antPickerBox.disableProperty().setValue(false);
+            if(!addAntModeEnabled.getValue()) antPicker.disable();
+
+            // Add ant menu option
+            editAddAntCheck.disableProperty().setValue(false);
+        }
+        else {
+            antPickerBox.setVisible(false);
+            antPickerBox.disableProperty().setValue(true);
+
+            // Disable add ant mode (also deselects Edit > Add ant)
+            addAntModeEnabled.setValue(false);
+
+            // Disable Edit > Add ant
+            editAddAntCheck.disableProperty().setValue(true);
+        }
+
         // Setting up canvas for drawing and displaying board
         if(automaton instanceof ElementaryAutomaton) {
             automatonDisplay = new AutomatonDisplay1D(automaton, width, CELL_SIZE);
+        }
+        else if(automaton instanceof LangtonAnt) {
+            automatonDisplay = new AutomatonDisplayLangtonsAnt(automaton, width, height, CELL_SIZE);
         }
         else
             automatonDisplay = new AutomatonDisplay2D(automaton, width, height, CELL_SIZE);
@@ -335,6 +371,23 @@ public class MainStageController implements Initializable, Controller {
             }
         });
 
+        // Add ant mode
+        addAntModeEnabled.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue) {
+                    antPicker.enable();
+                    editAddAntCheck.setSelected(true);
+                    automatonDisplay.getCanvas().setCursor(Cursor.CROSSHAIR);
+                }
+                else {
+                    antPicker.disable();
+                    editAddAntCheck.setSelected(false);
+                    automatonDisplay.getCanvas().setCursor(Cursor.DEFAULT);
+                }
+            }
+        });
+
         // Step text field
         stepTextField.textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -368,7 +421,7 @@ public class MainStageController implements Initializable, Controller {
         simulationTimeline.setCycleCount(Timeline.INDEFINITE);
     }
 
-    private void setUIElementsListners() {
+    private void setUIEventHandlers() {
         // Step Forward
         simulationForward.setOnAction(new StepForwardEventHandler(this));
         simulationForward.setAccelerator(KeyCombination.keyCombination("K"));
@@ -423,15 +476,18 @@ public class MainStageController implements Initializable, Controller {
             }
         });
 
-        // State picker (enabled in manual insert mode)
-        statePickerRect.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        // Add ant mode
+        editAddAntCheck.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(MouseEvent event) {
-                statePickerRect.setFill(Color.BLACK);
+            public void handle(ActionEvent event) {
+                if(editAddAntCheck.isSelected()) {
+                    addAntModeEnabled.setValue(true);
+                }
+                else {
+                    addAntModeEnabled.setValue(false);
+                }
             }
         });
-
-        // Step duration
     }
 
     private void setAutomatonDisplayMouseClickDetection() {
@@ -440,6 +496,10 @@ public class MainStageController implements Initializable, Controller {
         automatonDisplay.getCanvas().setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                // Get mouse click coords
+                int clickedCellXCoord = (int) (event.getX() / CELL_SIZE);
+                int clickedCellYCoord = (int) (event.getY() / CELL_SIZE);
+
                 // If we are in insert mode
                 if(insertModeEnabled.getValue()) {
                     if(manualInsertModeEnabled.getValue()) {
@@ -448,8 +508,6 @@ public class MainStageController implements Initializable, Controller {
                         structureToInsert = new Structure("", "", singleCell, 1, 1);
                     }
 
-                    int clickedCellXCoord = (int) (event.getX() / CELL_SIZE);
-                    int clickedCellYCoord = (int) (event.getY() / CELL_SIZE);
                     currentAutomaton.insertStructure(structureToInsert.getPositionedStructure(
                             clickedCellXCoord,
                             clickedCellYCoord
@@ -459,6 +517,34 @@ public class MainStageController implements Initializable, Controller {
 
                     // Disable insert possibility if structure was inserted
                     if(!manualInsertModeEnabled.getValue()) insertModeEnabled.setValue(false);
+                }
+                // If we are in add ant mode
+                if(addAntModeEnabled.getValue()) {
+                    Automaton.CellIterator iterator = currentAutomaton.cellIterator();
+                    Coords2D clickedCoords = new Coords2D(clickedCellXCoord, clickedCellYCoord);
+                    Map<CellCoordinates, CellState> newLangtonCell = new HashMap<>();
+
+                    Cell currentCell;
+                    Coords2D coords2D;
+                    LangtonCell state;
+                    LangtonCell newState = null;
+                    // Find the clicked cell in automaton
+                    while(iterator.hasNext()) {
+                        currentCell = iterator.next();
+                        coords2D = (Coords2D)currentCell.getCoords();
+                        state = (LangtonCell)currentCell.getState();
+                        if(coords2D.equals(clickedCoords)) {
+                            // Update it's state
+                            newState = new LangtonCell(state.cellState);
+                            newState.antStates.putAll(state.antStates);
+                            newState.addAnt(antPicker.getNewID(), antPicker.getAnt());
+                        }
+                    }
+
+                    newLangtonCell.put(clickedCoords, newState);
+                    currentAutomaton.insertStructure(newLangtonCell);
+                    automatonDisplay.updateAutomaton(currentAutomaton);
+                    automatonDisplay.display();
                 }
             }
         });
