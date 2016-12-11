@@ -39,7 +39,6 @@ import java.util.*;
 public class MainStageController implements Initializable, Controller {
     final int CELL_SIZE = 20;
     final int HISTORY_LIMIT = 5;
-    final double FRAME_DURATION = 100; // in milliseconds
 
     @FXML private BorderPane window;
 
@@ -97,6 +96,8 @@ public class MainStageController implements Initializable, Controller {
 
     @FXML private Rectangle statePickerRect;
 
+    @FXML private TextField stepTextField;
+
     private Group automatonGroup;
     private AutomatonDisplay automatonDisplay;
     private Scene main;
@@ -111,6 +112,7 @@ public class MainStageController implements Initializable, Controller {
 
     private IntegerProperty generation = new SimpleIntegerProperty(0);
     private IntegerProperty liveCells = new SimpleIntegerProperty(0);
+    private IntegerProperty frameDuration = new SimpleIntegerProperty(250); // in milliseconds
     private BooleanProperty insertModeEnabled = new SimpleBooleanProperty(false);
     private BooleanProperty manualInsertModeEnabled = new SimpleBooleanProperty(false);
     private String mode;
@@ -332,6 +334,38 @@ public class MainStageController implements Initializable, Controller {
                 }
             }
         });
+
+        // Step text field
+        stepTextField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                // Check if its a number
+                if(newValue.matches("\\d+")) frameDuration.setValue(Integer.parseInt(newValue));
+            }
+        });
+
+        // Frame duration
+        frameDuration.addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                simulationTimeline.stop();
+                simulationTimeline = new Timeline(new KeyFrame(Duration.millis(newValue.doubleValue()), new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        stepForward();
+                    }
+                }));
+                simulationTimeline.setCycleCount(Timeline.INDEFINITE);
+            }
+        });
+        // For first timeline setup
+        simulationTimeline = new Timeline(new KeyFrame(Duration.millis(frameDuration.get()), new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                stepForward();
+            }
+        }));
+        simulationTimeline.setCycleCount(Timeline.INDEFINITE);
     }
 
     private void setUIElementsListners() {
@@ -346,8 +380,6 @@ public class MainStageController implements Initializable, Controller {
         simulationBackwardBtn.setOnAction(new StepBackwardEventHandler(this));
 
         // Run simulation
-        simulationTimeline = new Timeline(new KeyFrame(Duration.millis(FRAME_DURATION), new TimelineEventHandler(this)));
-        simulationTimeline.setCycleCount(Timeline.INDEFINITE);
         simulationRun.setOnAction(new SimulationRunEventHandler(this));
         simulationRun.setAccelerator(KeyCombination.keyCombination("R"));
         simulationRunBtn.setOnAction(new SimulationRunEventHandler(this));
@@ -398,6 +430,8 @@ public class MainStageController implements Initializable, Controller {
                 statePickerRect.setFill(Color.BLACK);
             }
         });
+
+        // Step duration
     }
 
     private void setAutomatonDisplayMouseClickDetection() {

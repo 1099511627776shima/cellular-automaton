@@ -88,12 +88,12 @@
                         <HBox alignment="CENTER" prefHeight="30.0" prefWidth="116.0" spacing="5.0">
                            <children>
                               <Label alignment="CENTER" text="Step:" />
-                              <TextField focusTraversable="false" maxHeight="20.0" prefHeight="20.0" prefWidth="45.0" text="0.1" HBox.hgrow="NEVER">
+                              <TextField fx:id="stepTextField" focusTraversable="false" maxHeight="20.0" prefHeight="20.0" prefWidth="45.0" text="250" HBox.hgrow="NEVER">
                                  <font>
                                     <Font size="12.0" />
                                  </font>
                               </TextField>
-                              <Label alignment="CENTER" text="s" />
+                              <Label alignment="CENTER" text="ms" />
                            </children>
                         </HBox>
                      </children>
