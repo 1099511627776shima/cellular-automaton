@@ -53,18 +53,13 @@ public class LangtonAnt extends Automaton2Dim {
         // Checking if ant can come from adjacent cell
 
         // Ants from left cell
-        int antsToAdd;
         AntState searchedState;
         if(leftState.hasAnt()) {
             if(leftState.cellState.equals(BinaryState.DEAD))
                 searchedState = AntState.NORTH;
-                //antsToAdd = Collections.frequency(leftState.antStates, AntState.NORTH);
             else
                 searchedState = AntState.SOUTH;
-                //antsToAdd = Collections.frequency(leftState.antStates, AntState.SOUTH);
 
-            /*for(int i=0; i < antsToAdd; i++)
-                newLangtonState.addAnt(AntState.EAST);*/
             for(int antID : leftState.antIDs) {
                 if(leftState.antStates.get(antID).equals(searchedState))
                     newLangtonState.addAnt(antID, AntState.EAST);
@@ -75,13 +70,9 @@ public class LangtonAnt extends Automaton2Dim {
         if(rightState.hasAnt()) {
             if(rightState.cellState.equals(BinaryState.DEAD))
                 searchedState = AntState.SOUTH;
-                //antsToAdd = Collections.frequency(rightState.antStates, AntState.SOUTH);
             else
                 searchedState = AntState.NORTH;
-                //antsToAdd = Collections.frequency(rightState.antStates, AntState.NORTH);
 
-            /*for(int i=0; i < antsToAdd; i++)
-                newLangtonState.addAnt(AntState.WEST);*/
             for(int antID : rightState.antIDs) {
                 if (rightState.antStates.get(antID).equals(searchedState))
                     newLangtonState.addAnt(antID, AntState.WEST);
@@ -92,13 +83,9 @@ public class LangtonAnt extends Automaton2Dim {
         if(topState.hasAnt()) {
             if(topState.cellState.equals(BinaryState.DEAD))
                 searchedState = AntState.EAST;
-                //antsToAdd = Collections.frequency(topState.antStates, AntState.EAST);
             else
                 searchedState = AntState.WEST;
-                //antsToAdd = Collections.frequency(topState.antStates, AntState.WEST);
 
-            /* for(int i=0; i < antsToAdd; i++)
-                newLangtonState.addAnt(AntState.SOUTH); */
             for(int antID : topState.antIDs) {
                 if (topState.antStates.get(antID).equals(searchedState))
                     newLangtonState.addAnt(antID, AntState.SOUTH);
@@ -109,13 +96,9 @@ public class LangtonAnt extends Automaton2Dim {
         if(bottomState.hasAnt()) {
             if(bottomState.cellState.equals(BinaryState.DEAD))
                 searchedState = AntState.WEST;
-                //antsToAdd = Collections.frequency(bottomState.antStates, AntState.WEST);
             else
                 searchedState = AntState.EAST;
-                //antsToAdd = Collections.frequency(bottomState.antStates, AntState.EAST);
 
-            /*for(int i=0; i < antsToAdd; i++)
-                newLangtonState.addAnt(AntState.NORTH);*/
             for(int antID : bottomState.antIDs) {
                 if (bottomState.antStates.get(antID).equals(searchedState))
                     newLangtonState.addAnt(antID, AntState.NORTH);

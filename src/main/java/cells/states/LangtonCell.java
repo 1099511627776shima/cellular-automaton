@@ -14,6 +14,26 @@ public class LangtonCell implements CellState {
         clearCell();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LangtonCell that = (LangtonCell) o;
+
+        if (cellState != that.cellState) return false;
+        if (!antIDs.equals(that.antIDs)) return false;
+        return antStates.equals(that.antStates);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = cellState.hashCode();
+        result = 31 * result + antIDs.hashCode();
+        result = 31 * result + antStates.hashCode();
+        return result;
+    }
+
     /** Adds ant of given ID and state to the cell
      * @param antID ID of the added ant
      * @param state State of the added ant

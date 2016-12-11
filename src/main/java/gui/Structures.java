@@ -1,10 +1,7 @@
 package gui;
 
 import cells.coordinates.Coords2D;
-import cells.states.BinaryState;
-import cells.states.CellState;
-import cells.states.QuadState;
-import cells.states.WireElectronState;
+import cells.states.*;
 
 import java.util.*;
 
@@ -18,6 +15,8 @@ public class Structures {
                 return binaryStructures.get(name);
             case "wireworld":
                 return wireworldStructures.get(name);
+            case "ant":
+                return antStructures.get(name);
             default:
                 return null;
         }
@@ -341,6 +340,8 @@ public class Structures {
 
     private static Map<String, Structure> quadStructures = initializeStructuresGoL("quad");
 
+    private static Map<String, Structure> antStructures = initializeStructuresGoL("ant");
+
     private static Map<String, Structure> wireworldStructures = initializeStructuresWW();
 
     private static Map<Coords2D, CellState> generateMap(String pattern, String mode) {
@@ -375,8 +376,13 @@ public class Structures {
                 case "wireworld":
                     resultMap.put(new Coords2D(coordsScanner.nextInt(), coordsScanner.nextInt()), WireElectronState.WIRE);
                     break;
-                default:
+                case "binary":
                     resultMap.put(new Coords2D(coordsScanner.nextInt(), coordsScanner.nextInt()), BinaryState.ALIVE);
+                    break;
+                case "ant":
+                    resultMap.put(new Coords2D(coordsScanner.nextInt(), coordsScanner.nextInt()), new LangtonCell(BinaryState.ALIVE));
+                    break;
+
             }
         }
 

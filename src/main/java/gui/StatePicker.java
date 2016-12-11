@@ -1,10 +1,8 @@
 package gui;
 
-import cells.states.BinaryState;
-import cells.states.CellState;
-import cells.states.QuadState;
-import cells.states.WireElectronState;
+import cells.states.*;
 import javafx.event.EventHandler;
+import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -59,9 +57,11 @@ public class StatePicker {
             case "wireworld":
                 selectedState = WireElectronState.VOID;
                 break;
-            // "binary" and "ant"
-            default:
+            case "binary":
                 selectedState = BinaryState.DEAD;
+                break;
+            case "ant":
+                selectedState = new LangtonCell(BinaryState.DEAD);
                 break;
         }
 
@@ -75,7 +75,11 @@ public class StatePicker {
         binary.add(new Pair<>(BinaryState.DEAD, Color.WHITE));
         binary.add(new Pair<>(BinaryState.ALIVE, Color.BLACK));
         stateColors.put("binary", binary);
-        stateColors.put("ant", binary);
+
+        ArrayList<Pair<CellState, Color>> ant = new ArrayList<>();
+        ant.add(new Pair<>(new LangtonCell(BinaryState.DEAD), Color.WHITE));
+        ant.add(new Pair<>(new LangtonCell(BinaryState.ALIVE), Color.BLACK));
+        stateColors.put("ant", ant);
 
         ArrayList<Pair<CellState, Color>> quad = new ArrayList<>();
         quad.add(new Pair<>(QuadState.DEAD, Color.WHITE));

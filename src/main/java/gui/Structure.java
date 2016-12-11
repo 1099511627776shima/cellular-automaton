@@ -59,16 +59,6 @@ public class Structure {
         return structureDescription;
     }
 
-    /* public String toString() {
-        String output = new String();
-        output += structureName + "\n";
-        for(Coords2D coords : structureMap.keySet())
-            output += coords.toString() + " ";
-        output += "\n";
-
-        return output;
-    } */
-
     private String structureName;
     private String structureDescription;
     private int width;

@@ -168,10 +168,16 @@ public class MainStageController implements Initializable, Controller {
 
             // Add ant menu option
             editAddAntCheck.disableProperty().setValue(false);
+
+            // Disable insert structure menu
+            // insertBtn.disableProperty().setValue(true);
         }
         else {
             antPickerBox.setVisible(false);
             antPickerBox.disableProperty().setValue(true);
+
+            // Enable insert structure menu
+            // insertBtn.disableProperty().setValue(false);
 
             // Disable add ant mode (also deselects Edit > Add ant)
             addAntModeEnabled.setValue(false);
@@ -190,7 +196,7 @@ public class MainStageController implements Initializable, Controller {
         else
             automatonDisplay = new AutomatonDisplay2D(automaton, width, height, CELL_SIZE);
 
-        if(insertModeEnabled.getValue()) automatonDisplay.getCanvas().setCursor(Cursor.CROSSHAIR);
+        if(insertModeEnabled.getValue() || addAntModeEnabled.getValue()) automatonDisplay.getCanvas().setCursor(Cursor.CROSSHAIR);
         setAutomatonDisplayMouseClickDetection();
 
         // Attaching Canvas to Group for panning and zooming
@@ -347,7 +353,7 @@ public class MainStageController implements Initializable, Controller {
                     automatonDisplay.getCanvas().setCursor(Cursor.CROSSHAIR);
                 }
                 else {
-                    automatonDisplay.getCanvas().setCursor(Cursor.DEFAULT);
+                    if(!addAntModeEnabled.getValue()) automatonDisplay.getCanvas().setCursor(Cursor.DEFAULT);
                 }
             }
         });
@@ -501,7 +507,7 @@ public class MainStageController implements Initializable, Controller {
                 int clickedCellYCoord = (int) (event.getY() / CELL_SIZE);
 
                 // If we are in insert mode
-                if(insertModeEnabled.getValue()) {
+                if (insertModeEnabled.getValue()) {
                     if(manualInsertModeEnabled.getValue()) {
                         Map<Coords2D, CellState> singleCell = new HashMap<>();
                         singleCell.put(new Coords2D(0, 0), statePicker.getState());
@@ -516,10 +522,10 @@ public class MainStageController implements Initializable, Controller {
                     automatonDisplay.display();
 
                     // Disable insert possibility if structure was inserted
-                    if(!manualInsertModeEnabled.getValue()) insertModeEnabled.setValue(false);
+                    if (!manualInsertModeEnabled.getValue()) insertModeEnabled.setValue(false);
                 }
                 // If we are in add ant mode
-                if(addAntModeEnabled.getValue()) {
+                if (addAntModeEnabled.getValue()) {
                     Automaton.CellIterator iterator = currentAutomaton.cellIterator();
                     Coords2D clickedCoords = new Coords2D(clickedCellXCoord, clickedCellYCoord);
                     Map<CellCoordinates, CellState> newLangtonCell = new HashMap<>();
@@ -529,11 +535,11 @@ public class MainStageController implements Initializable, Controller {
                     LangtonCell state;
                     LangtonCell newState = null;
                     // Find the clicked cell in automaton
-                    while(iterator.hasNext()) {
+                    while (iterator.hasNext()) {
                         currentCell = iterator.next();
-                        coords2D = (Coords2D)currentCell.getCoords();
-                        state = (LangtonCell)currentCell.getState();
-                        if(coords2D.equals(clickedCoords)) {
+                        coords2D = (Coords2D) currentCell.getCoords();
+                        state = (LangtonCell) currentCell.getState();
+                        if (coords2D.equals(clickedCoords)) {
                             // Update it's state
                             newState = new LangtonCell(state.cellState);
                             newState.antStates.putAll(state.antStates);

@@ -22,15 +22,10 @@ public class AutomatonDisplayLangtonsAnt extends AutomatonDisplay2D {
         draw.setFill(CellStateColor.get(cell.getState()));
 
         LangtonCell langtonCell = (LangtonCell)cell.getState();
-        if(langtonCell.hasAnt()) {
-            for(AntState ant : langtonCell.antStates.values()) {
-                draw.setFill(Color.ORANGE);
-            }
-        }
+        if(langtonCell.hasAnt())
+            draw.setFill(Color.ORANGE);
 
         draw.fillRect(offset + coords.getX()*CELL_SIZE, offset + coords.getY()*CELL_SIZE,
                 CELL_SIZE - 2*offset, CELL_SIZE - 2*offset);
-
-
     }
 }
