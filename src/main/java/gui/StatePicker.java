@@ -20,7 +20,7 @@ public class StatePicker {
         initStateColors();
         changeMode(mode);
         statePickerRect.setFill(Color.WHITE);
-        enable();
+        disable();
 
         // Setting up color change
         statePickerRect.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -72,28 +72,28 @@ public class StatePicker {
         stateColors = new HashMap<>();
 
         ArrayList<Pair<CellState, Color>> binary = new ArrayList<>();
-        binary.add(new Pair<>(BinaryState.DEAD, Color.WHITE));
-        binary.add(new Pair<>(BinaryState.ALIVE, Color.BLACK));
+        binary.add(new Pair<>(BinaryState.DEAD, CellStateColor.get(BinaryState.DEAD)));
+        binary.add(new Pair<>(BinaryState.ALIVE, CellStateColor.get(BinaryState.ALIVE)));
         stateColors.put("binary", binary);
 
         ArrayList<Pair<CellState, Color>> ant = new ArrayList<>();
-        ant.add(new Pair<>(new LangtonCell(BinaryState.DEAD), Color.WHITE));
-        ant.add(new Pair<>(new LangtonCell(BinaryState.ALIVE), Color.BLACK));
+        ant.add(new Pair<>(new LangtonCell(BinaryState.DEAD), CellStateColor.get(BinaryState.DEAD)));
+        ant.add(new Pair<>(new LangtonCell(BinaryState.ALIVE), CellStateColor.get(BinaryState.ALIVE)));
         stateColors.put("ant", ant);
 
         ArrayList<Pair<CellState, Color>> quad = new ArrayList<>();
-        quad.add(new Pair<>(QuadState.DEAD, Color.WHITE));
-        quad.add(new Pair<>(QuadState.RED, Color.RED));
-        quad.add(new Pair<>(QuadState.GREEN, Color.GREEN));
-        quad.add(new Pair<>(QuadState.YELLOW, Color.YELLOW));
-        quad.add(new Pair<>(QuadState.BLUE, Color.BLUE));
+        quad.add(new Pair<>(QuadState.DEAD, CellStateColor.get(QuadState.DEAD)));
+        quad.add(new Pair<>(QuadState.RED, CellStateColor.get(QuadState.RED)));
+        quad.add(new Pair<>(QuadState.GREEN, CellStateColor.get(QuadState.GREEN)));
+        quad.add(new Pair<>(QuadState.YELLOW, CellStateColor.get(QuadState.YELLOW)));
+        quad.add(new Pair<>(QuadState.BLUE, CellStateColor.get(QuadState.BLUE)));
         stateColors.put("quad", quad);
 
         ArrayList<Pair<CellState, Color>> wireworld = new ArrayList<>();
-        wireworld.add(new Pair<>(WireElectronState.VOID, Color.BLACK));
-        wireworld.add(new Pair<>(WireElectronState.WIRE, Color.LAWNGREEN));
-        wireworld.add(new Pair<>(WireElectronState.ELECTRON_HEAD, new Color(0, 128/255, 1, 1)));
-        wireworld.add(new Pair<>(WireElectronState.ELECTRON_TAIL, new Color(1, 64/255, 0, 1)));
+        wireworld.add(new Pair<>(WireElectronState.VOID, CellStateColor.get(WireElectronState.VOID)));
+        wireworld.add(new Pair<>(WireElectronState.WIRE, CellStateColor.get(WireElectronState.WIRE)));
+        wireworld.add(new Pair<>(WireElectronState.ELECTRON_HEAD, CellStateColor.get(WireElectronState.ELECTRON_HEAD)));
+        wireworld.add(new Pair<>(WireElectronState.ELECTRON_TAIL, CellStateColor.get(WireElectronState.ELECTRON_TAIL)));
         stateColors.put("wireworld", wireworld);
     }
 

@@ -3,7 +3,7 @@ package gui.eventhandlers;
 import gui.controllers.MainStageController;
 import javafx.event.ActionEvent;
 
-public class StepForwardEventHandler extends ComponentEventHandler {
+public class StepForwardEventHandler extends MainStageEventHandler {
     public StepForwardEventHandler(MainStageController controller) {
         super(controller);
     }

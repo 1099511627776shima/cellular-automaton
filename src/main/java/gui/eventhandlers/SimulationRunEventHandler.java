@@ -6,7 +6,7 @@ import javafx.event.ActionEvent;
 /**
  * Created by bzdeco on 06.12.16.
  */
-public class SimulationRunEventHandler extends ComponentEventHandler {
+public class SimulationRunEventHandler extends MainStageEventHandler {
     public SimulationRunEventHandler(MainStageController controller) {
         super(controller);
     }

@@ -30,6 +30,7 @@
         <menus>
           <Menu fx:id="menuFile" mnemonicParsing="false" text="File">
             <items>
+                  <MenuItem fx:id="fileNew" mnemonicParsing="false" text="New" />
               <MenuItem fx:id="fileExit" mnemonicParsing="false" text="Exit" />
             </items>
           </Menu>
@@ -58,18 +59,8 @@
                         <KeyCodeCombination alt="UP" code="GREATER" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem fx:id="simulationBackward" mnemonicParsing="false" text="Step Backward">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="LESS" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
             </items>
           </Menu>
-            <Menu fx:id="menuHelp" mnemonicParsing="false" text="Help">
-              <items>
-                <MenuItem fx:id="helpAbout" mnemonicParsing="false" text="About" />
-              </items>
-            </Menu>
         </menus>
       </MenuBar>
    </top>
@@ -123,7 +114,6 @@
                         <Button fx:id="simulationRunBtn" alignment="CENTER" layoutX="81.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Run" />
                         <Button fx:id="simulationPauseBtn" alignment="CENTER" layoutX="162.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Pause" />
                         <Button fx:id="simulationForwardBtn" alignment="CENTER" layoutX="304.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Forward" />
-                        <Button fx:id="simulationBackwardBtn" alignment="CENTER" layoutX="375.0" layoutY="10.0" maxHeight="26.0" minWidth="25.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Backward" />
                     </items>
                   </ToolBar>
                   <ScrollPane fx:id="scrollableRegion" fitToHeight="true" fitToWidth="true" prefHeight="650.0" prefWidth="1280.0" VBox.vgrow="ALWAYS">

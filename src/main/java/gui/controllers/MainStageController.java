@@ -23,9 +23,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -40,76 +38,82 @@ import java.util.*;
 
 public class MainStageController implements Initializable, Controller {
     final int CELL_SIZE = 20;
-    final int HISTORY_LIMIT = 5;
 
-    @FXML private BorderPane window;
+    @FXML
+    private BorderPane window;
 
-    @FXML private MenuBar menuBar;
+    @FXML
+    private MenuItem fileNew;
 
-    @FXML private Menu menuFile;
+    @FXML
+    private MenuItem fileExit;
 
-    @FXML private MenuItem fileExit;
+    @FXML
+    private MenuItem editInsertLibrary;
 
-    @FXML private Menu menuEdit;
-
-    @FXML private MenuItem editInsertLibrary;
-
-    @FXML private CheckMenuItem editManualInsertCheck;
+    @FXML
+    private CheckMenuItem editManualInsertCheck;
 
     @FXML
     private CheckMenuItem editAddAntCheck;
 
-    @FXML private Menu menuSimulation;
+    @FXML
+    private MenuItem simulationRun;
 
-    @FXML private MenuItem simulationRun;
+    @FXML
+    private MenuItem simulationPause;
 
-    @FXML private MenuItem simulationPause;
+    @FXML
+    private MenuItem simulationForward;
 
-    @FXML private MenuItem simulationForward;
+    @FXML
+    private HBox antPickerBox;
 
-    @FXML private MenuItem simulationBackward;
+    @FXML
+    private AnchorPane antPickerPane;
 
-    @FXML private Menu menuHelp;
+    @FXML
+    private Label insertModeLabel;
 
-    @FXML private MenuItem helpAbout;
+    @FXML
+    private Rectangle statePickerRect;
 
-    @FXML private Label generationValueLabel;
+    @FXML
+    private TextField stepTextField;
 
-    @FXML private Label liveCellsValueLabel;
+    @FXML
+    private Button newBtn;
 
-    @FXML private AnchorPane displayAnchor;
+    @FXML
+    private Button insertBtn;
 
-    @FXML private Button newBtn;
+    @FXML
+    private Button simulationRunBtn;
 
-    @FXML private Button insertBtn;
+    @FXML
+    private Button simulationPauseBtn;
 
-    @FXML private Button simulationRunBtn;
+    @FXML
+    private Button simulationForwardBtn;
 
-    @FXML private Button simulationPauseBtn;
+    @FXML
+    private ScrollPane scrollableRegion;
 
-    @FXML private Button simulationForwardBtn;
+    @FXML
+    private Group scrollContent;
 
-    @FXML private Button simulationBackwardBtn;
+    @FXML
+    private StackPane zoomableRegion;
 
-    @FXML private ScrollPane scrollableRegion;
+    @FXML
+    private Label generationValueLabel;
 
-    @FXML private Group scrollContent;
-
-    @FXML private StackPane zoomableRegion;
-
-    @FXML private Label insertModeLabel;
-
-    @FXML private Rectangle statePickerRect;
-
-    @FXML private AnchorPane antPickerPane;
-
-    @FXML private TextField stepTextField;
-
-    @FXML private HBox antPickerBox;
+    @FXML
+    private Label liveCellsValueLabel;
 
     private Group automatonGroup;
     private AutomatonDisplay automatonDisplay;
-    private Scene main;
+    private Stage main;
     private Stage createNewAutomaton;
     private Stage insertStructure;
     private InsertStructureStageController insertStructureController;
@@ -128,21 +132,43 @@ public class MainStageController implements Initializable, Controller {
     private BooleanProperty addAntModeEnabled = new SimpleBooleanProperty(false);
     private String mode;
 
-    private ArrayList<Automaton> previousStates = new ArrayList<>();
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setUIEventHandlers();
     }
 
-    public void setStage(Scene main, Stage createNewAutomaton, Stage insertStructure, InsertStructureStageController insertStructureController) {
+    public void addAccessToAllStages(Stage main, Stage createNewAutomaton, Stage insertStructure, InsertStructureStageController insertStructureController) {
         this.main = main;
         this.createNewAutomaton = createNewAutomaton;
         this.insertStructure = insertStructure;
         this.insertStructureController = insertStructureController;
     }
 
-    public String getCurrentAutomatonMode() {
+    /**
+     * Calculates and display the next state (next generation) of the currentAutomaton
+     */
+    public void stepForward() {
+        //previousStates.add(currentAutomaton); // Add current currentAutomaton to previous states
+        //if(previousStates.size() > HISTORY_LIMIT)
+        //    previousStates.remove(0);
+        automatonDisplay.updateDisplayHistory(); // Memorize recent state for further stepping backwards
+        currentAutomaton = currentAutomaton.nextState(); // Set next currentAutomaton state to be current state
+        automatonDisplay.updateAutomaton(currentAutomaton); // Set new current state to be current state for display
+        generation.setValue(generation.get() + 1); // Increment generation
+        liveCells.setValue(getLiveCellsValue()); // Update live cells count
+
+        automatonDisplay.display(); // Display new state
+    }
+
+    public void runSimulation() {
+        simulationTimeline.play();
+    }
+
+    public void pauseSimulation() {
+        simulationTimeline.stop();
+    }
+
+    String getCurrentAutomatonMode() {
         return mode;
     }
 
@@ -153,34 +179,31 @@ public class MainStageController implements Initializable, Controller {
         this.currentAutomaton = automaton;
         this.mode = mode;
         generation.setValue(0);
+        liveCells.setValue(getLiveCellsValue());
+
+        // Stop the timeline if it's playing
+        if(simulationTimeline != null) simulationTimeline.stop();
+
+        // Disable all insert modes
+        editManualInsertCheck.setSelected(false);
+        editAddAntCheck.setSelected(false);
 
         // Setup StatePicker
         statePicker = new StatePicker(statePickerRect, mode);
-        if(!manualInsertModeEnabled.getValue()) statePicker.disable();
 
-        // Setup UI for ant mode
+        // Setup AntPicker and add ant option
         if(mode.equals("ant")) {
             // Ant Picker
             antPicker = new AntPicker(antPickerPane, CELL_SIZE);
             antPickerBox.setVisible(true);
             antPickerBox.disableProperty().setValue(false);
-            if(!addAntModeEnabled.getValue()) antPicker.disable();
 
-            // Add ant menu option
+            // Enable add ant menu option
             editAddAntCheck.disableProperty().setValue(false);
-
-            // Disable insert structure menu
-            // insertBtn.disableProperty().setValue(true);
         }
         else {
             antPickerBox.setVisible(false);
             antPickerBox.disableProperty().setValue(true);
-
-            // Enable insert structure menu
-            // insertBtn.disableProperty().setValue(false);
-
-            // Disable add ant mode (also deselects Edit > Add ant)
-            addAntModeEnabled.setValue(false);
 
             // Disable Edit > Add ant
             editAddAntCheck.disableProperty().setValue(true);
@@ -189,6 +212,10 @@ public class MainStageController implements Initializable, Controller {
         // Setting up canvas for drawing and displaying board
         if(automaton instanceof ElementaryAutomaton) {
             automatonDisplay = new AutomatonDisplay1D(automaton, width, CELL_SIZE);
+            // Disable insert possibilities
+            insertBtn.disableProperty().setValue(true);
+            editManualInsertCheck.disableProperty().setValue(true);
+            editAddAntCheck.disableProperty().setValue(true);
         }
         else if(automaton instanceof LangtonAnt) {
             automatonDisplay = new AutomatonDisplayLangtonsAnt(automaton, width, height, CELL_SIZE);
@@ -196,7 +223,6 @@ public class MainStageController implements Initializable, Controller {
         else
             automatonDisplay = new AutomatonDisplay2D(automaton, width, height, CELL_SIZE);
 
-        if(insertModeEnabled.getValue() || addAntModeEnabled.getValue()) automatonDisplay.getCanvas().setCursor(Cursor.CROSSHAIR);
         setAutomatonDisplayMouseClickDetection();
 
         // Attaching Canvas to Group for panning and zooming
@@ -216,11 +242,17 @@ public class MainStageController implements Initializable, Controller {
         automatonDisplay.drawBoard();
 
         // Display currentAutomaton
-        //displayAutomaton(currentAutomaton);
         automatonDisplay.display();
 
         // Set UI elements to track changes in currentAutomaton
-        setUIElementsBindings();
+        setUIElementsListeners();
+    }
+
+    void turnOnInsertStructureMode(Structure insertedStructure) {
+        structureToInsert = insertedStructure;
+        insertModeEnabled.setValue(true);
+        // Disable manual insert mode if it was enabled
+        editManualInsertCheck.setSelected(false);
     }
 
     /* createZoomableAutomatonBoard(), figureScrollOffset() and repositionScroller() thanks to solution
@@ -276,7 +308,7 @@ public class MainStageController implements Initializable, Controller {
             public void handle(MouseEvent event) {
                 if(event.isMiddleButtonDown()) {
                     // Disable insert mode (both manual and normal) when dragging detected
-                    manualInsertModeEnabled.setValue(false);
+                    disableAllManualInsertModes();
 
                     double deltaX = event.getX() - lastMouseCoordinates.get().getX();
                     double extraWidth = scrollContent.getLayoutBounds().getWidth() - scrollableRegion.getViewportBounds().getWidth();
@@ -327,7 +359,7 @@ public class MainStageController implements Initializable, Controller {
         }
     }
 
-    private void setUIElementsBindings() {
+    private void setUIElementsListeners() {
         // Generation
         generation.addListener(new ChangeListener<Number>() {
             @Override
@@ -343,7 +375,7 @@ public class MainStageController implements Initializable, Controller {
                 liveCellsValueLabel.setText("" + newValue);
             }
         });
-        liveCells.setValue(calculateLiveCellsValue());
+        liveCells.setValue(getLiveCellsValue());
 
         // Insert mode
         insertModeEnabled.addListener(new ChangeListener<Boolean>() {
@@ -366,13 +398,11 @@ public class MainStageController implements Initializable, Controller {
                     insertModeEnabled.setValue(true);
                     insertModeLabel.setText("Insert Mode: ON");
                     statePicker.enable();
-                    editManualInsertCheck.setSelected(true);
                 }
                 else {
                     insertModeEnabled.setValue(false);
                     insertModeLabel.setText("Insert Mode: OFF");
                     statePicker.disable();
-                    editManualInsertCheck.setSelected(false);
                 }
             }
         });
@@ -383,12 +413,10 @@ public class MainStageController implements Initializable, Controller {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if(newValue) {
                     antPicker.enable();
-                    editAddAntCheck.setSelected(true);
                     automatonDisplay.getCanvas().setCursor(Cursor.CROSSHAIR);
                 }
                 else {
                     antPicker.disable();
-                    editAddAntCheck.setSelected(false);
                     automatonDisplay.getCanvas().setCursor(Cursor.DEFAULT);
                 }
             }
@@ -407,7 +435,9 @@ public class MainStageController implements Initializable, Controller {
         frameDuration.addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                // Stop the simulation
                 simulationTimeline.stop();
+                // Make a new timeline with new key frame duration
                 simulationTimeline = new Timeline(new KeyFrame(Duration.millis(newValue.doubleValue()), new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
@@ -417,7 +447,7 @@ public class MainStageController implements Initializable, Controller {
                 simulationTimeline.setCycleCount(Timeline.INDEFINITE);
             }
         });
-        // For first timeline setup
+        // First time timeline setup
         simulationTimeline = new Timeline(new KeyFrame(Duration.millis(frameDuration.get()), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -428,15 +458,87 @@ public class MainStageController implements Initializable, Controller {
     }
 
     private void setUIEventHandlers() {
-        // Step Forward
-        simulationForward.setOnAction(new StepForwardEventHandler(this));
-        simulationForward.setAccelerator(KeyCombination.keyCombination("K"));
-        simulationForwardBtn.setOnAction(new StepForwardEventHandler(this));
 
-        // Step Backward
-        simulationBackward.setOnAction(new StepBackwardEventHandler(this));
-        simulationBackward.setAccelerator(KeyCombination.keyCombination("J"));
-        simulationBackwardBtn.setOnAction(new StepBackwardEventHandler(this));
+        /* --- Menu File --- */
+
+        // New
+        EventHandler<ActionEvent> fileNewEventHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                createNewAutomaton.show();
+            }
+        };
+        fileNew.setOnAction(fileNewEventHandler);
+        fileNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN)); // Ctrl + N
+        newBtn.setOnAction(fileNewEventHandler);
+
+        // Exit
+        EventHandler<ActionEvent> fileExitEventHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                main.close();
+            }
+        };
+        fileExit.setOnAction(fileExitEventHandler);
+
+
+        /* --- Menu Edit --- */
+
+        // Insert structure from library
+        EventHandler<ActionEvent> editInsertEventHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if(currentAutomaton != null) {
+                    disableAllManualInsertModes();
+                    insertStructure.show();
+                    insertStructureController.configureStructureListOnWindowDisplay();
+                }
+            }
+        };
+        editInsertLibrary.setOnAction(editInsertEventHandler);
+        editInsertLibrary.setAccelerator(new KeyCodeCombination(KeyCode.I, KeyCombination.CONTROL_DOWN)); // Ctrl + I
+        insertBtn.setOnAction(editInsertEventHandler);
+
+        // Manual insert mode
+        EventHandler<ActionEvent> editManualInsert = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if(editManualInsertCheck.isSelected()) {
+                    // Disable the other insert mode
+                    editAddAntCheck.setSelected(false);
+                    addAntModeEnabled.setValue(false);
+
+                    manualInsertModeEnabled.setValue(true);
+                }
+                else {
+                    manualInsertModeEnabled.setValue(false);
+                }
+            }
+        };
+        editManualInsertCheck.setOnAction(editManualInsert);
+        editManualInsertCheck.setAccelerator(new KeyCodeCombination(KeyCode.I));
+
+        // Add ant mode
+        EventHandler<ActionEvent> editAntEventHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if(editAddAntCheck.isSelected()) {
+                    // Disable the other insert mode
+                    editManualInsertCheck.setSelected(false);
+                    manualInsertModeEnabled.setValue(false);
+
+                    addAntModeEnabled.setValue(true);
+                }
+                else {
+                    addAntModeEnabled.setValue(false);
+                }
+            }
+        };
+        editAddAntCheck.setOnAction(editAntEventHandler);
+        editAddAntCheck.setAccelerator(new KeyCodeCombination(KeyCode.A));
+
+
+        /* --- Menu Simulation --- */
 
         // Run simulation
         simulationRun.setOnAction(new SimulationRunEventHandler(this));
@@ -448,52 +550,10 @@ public class MainStageController implements Initializable, Controller {
         simulationPause.setAccelerator(KeyCombination.keyCombination("P"));
         simulationPauseBtn.setOnAction(new SimulationPauseEventHandler(this));
 
-        // New
-        newBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                createNewAutomaton.show();
-            }
-        });
-
-        // Insert
-        insertBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if(currentAutomaton != null) {
-                    insertStructure.show();
-                    insertStructureController.configureStructureListOnWindowDisplay();
-                }
-            }
-        });
-
-        // Manual insert mode
-        editManualInsertCheck.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                // selected
-                if(editManualInsertCheck.isSelected()) {
-                    manualInsertModeEnabled.setValue(true);
-                }
-                // deselected
-                else {
-                    manualInsertModeEnabled.setValue(false);
-                }
-            }
-        });
-
-        // Add ant mode
-        editAddAntCheck.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if(editAddAntCheck.isSelected()) {
-                    addAntModeEnabled.setValue(true);
-                }
-                else {
-                    addAntModeEnabled.setValue(false);
-                }
-            }
-        });
+        // Step Forward
+        simulationForward.setOnAction(new StepForwardEventHandler(this));
+        simulationForward.setAccelerator(KeyCombination.keyCombination("K"));
+        simulationForwardBtn.setOnAction(new StepForwardEventHandler(this));
     }
 
     private void setAutomatonDisplayMouseClickDetection() {
@@ -518,8 +578,6 @@ public class MainStageController implements Initializable, Controller {
                             clickedCellXCoord,
                             clickedCellYCoord
                     ));
-                    automatonDisplay.updateAutomaton(currentAutomaton);
-                    automatonDisplay.display();
 
                     // Disable insert possibility if structure was inserted
                     if (!manualInsertModeEnabled.getValue()) insertModeEnabled.setValue(false);
@@ -549,9 +607,11 @@ public class MainStageController implements Initializable, Controller {
 
                     newLangtonCell.put(clickedCoords, newState);
                     currentAutomaton.insertStructure(newLangtonCell);
-                    automatonDisplay.updateAutomaton(currentAutomaton);
-                    automatonDisplay.display();
                 }
+
+                automatonDisplay.updateAutomaton(currentAutomaton);
+                automatonDisplay.display();
+                liveCells.setValue(getLiveCellsValue()); // Update live cells value
             }
         });
 
@@ -560,7 +620,7 @@ public class MainStageController implements Initializable, Controller {
             @Override
             public void handle(MouseEvent event) {
                 // If user clicked outside of automatonDisplay canvas
-                // In manual insert it can be only turned off by user
+                // In manual insert it can be only turned off via menu
                 if(insertModeEnabled.getValue() && !manualInsertModeEnabled.getValue() && !(event.getPickResult().getIntersectedNode() instanceof Canvas)) {
                     // Turn off insert mode
                     insertModeEnabled.setValue(false);
@@ -572,31 +632,31 @@ public class MainStageController implements Initializable, Controller {
         });
     }
 
-    public void turnOnInsertStructureMode(Structure insertedStructure) {
-        structureToInsert = insertedStructure;
-        // Disable manual insert mode if it was enabled
-        manualInsertModeEnabled.setValue(false);
-        insertModeEnabled.setValue(true);
-    }
-
-    private boolean isAlive(Cell cell) {
+    private boolean isLive(Cell cell) {
         CellState state = cell.getState();
         if(state == BinaryState.ALIVE || state == QuadState.BLUE || state == QuadState.GREEN || state == QuadState.RED || state == QuadState.YELLOW)
             return true;
+        else if(state instanceof LangtonCell) {
+            LangtonCell langtonState = (LangtonCell)state;
+            if(langtonState.cellState == BinaryState.ALIVE)
+                return true;
+            else
+                return false;
+        }
         else
             return false;
     }
 
     /**
-     * Counts all of the living cells (used when currentAutomaton is initialized and in @see MainStageController#stepBackward(), NOT during the simulation)
-     * @return Returns the number of living cells in the currentAutomaton
+     * Counts all of the live cells in the currently displayed automaton state
+     * @return Returns the number of live cells in the currently displayed automaton state
      */
-    private int calculateLiveCellsValue() {
+    private int getLiveCellsValue() {
         Automaton.CellIterator iterator = currentAutomaton.cellIterator();
 
         int aliveCellsCount = 0;
         while(iterator.hasNext()) {
-            if(isAlive(iterator.next())) {
+            if(isLive(iterator.next())) {
                 aliveCellsCount++;
             }
         }
@@ -604,46 +664,10 @@ public class MainStageController implements Initializable, Controller {
         return aliveCellsCount;
     }
 
-    /**
-     * Calculates and display the next state (next generation) of the currentAutomaton
-     */
-    public void stepForward() {
-        previousStates.add(currentAutomaton); // Add current currentAutomaton to previous states
-        if(previousStates.size() > HISTORY_LIMIT)
-            previousStates.remove(0);
-        automatonDisplay.updateDisplayHistory(); // Memorize recent state for further stepping backwards
-        currentAutomaton = currentAutomaton.nextState(); // Set next currentAutomaton state to be current state
-        automatonDisplay.updateAutomaton(currentAutomaton); // Set new current state to be current satate for display
-        generation.setValue(generation.get() + 1); // Increment generation
-
-        automatonDisplay.display(); // Display current currentAutomaton
-    }
-
-    /**
-     * Loads and displays the previous state (older generation) of the currentAutomaton.
-     * This function is working very slowly and may highly influence app performance.
-     */
-    public void stepBackward() {
-        // If we can go backwards
-        if(generation.get() > 0 && previousStates.size() > 0) {
-            currentAutomaton = previousStates.remove(previousStates.size()-1);
-
-            automatonDisplay.updateAutomaton(currentAutomaton);
-            generation.setValue(generation.get() - 1); // Decrement generation
-
-            automatonDisplay.retrieveFromDisplayHistoryAndDisplay(); // Display previous currentAutomaton
-        }
-        else {
-            // TODO add loger on bottom toolbar
-            //System.out.println("Cannot go backwards");
-        }
-    }
-
-    public void runSimulation() {
-        simulationTimeline.play();
-    }
-
-    public void pauseSimulation() {
-        simulationTimeline.stop();
+    private void disableAllManualInsertModes() {
+        manualInsertModeEnabled.setValue(false);
+        addAntModeEnabled.setValue(false);
+        editManualInsertCheck.setSelected(false);
+        editAddAntCheck.setSelected(false);
     }
 }

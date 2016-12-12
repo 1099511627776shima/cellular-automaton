@@ -25,6 +25,7 @@ public class AntPicker {
         next = 0;
         antPickerPane.getChildren().add(0, antsDisplay.get(next % antsDisplay.size()).getValue());
         selectedAntState = AntState.NORTH;
+        disable();
 
         antPickerPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override

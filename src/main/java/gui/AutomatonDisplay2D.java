@@ -28,10 +28,4 @@ public class AutomatonDisplay2D extends AutomatonDisplay {
     public void updateDisplayHistory() {
 
     }
-
-    @Override
-    public void retrieveFromDisplayHistoryAndDisplay() {
-
-    }
-
 }

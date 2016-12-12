@@ -73,8 +73,6 @@ public abstract class AutomatonDisplay {
 
     public abstract void updateDisplayHistory();
 
-    public abstract void retrieveFromDisplayHistoryAndDisplay();
-
     protected Automaton automaton;
     protected Canvas canvas;
     protected double width;

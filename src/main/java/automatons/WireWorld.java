@@ -42,5 +42,5 @@ public class WireWorld extends Automaton2Dim {
         }
     }
 
-    private boolean wrappingEnabled; // FIXME do we need to store this
+    private boolean wrappingEnabled;
 }
