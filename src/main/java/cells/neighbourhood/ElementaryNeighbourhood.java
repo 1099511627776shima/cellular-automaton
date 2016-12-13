@@ -7,12 +7,27 @@ import exceptions.InvalidCoordinatesException;
 
 import java.util.*;
 
+/**
+ * This is a cell neighbourhood used in Elementary Automaton.
+ */
 public class ElementaryNeighbourhood implements CellNeighbourhood {
+    /**
+     * Sole constructor of this class creating neighbourhood for an automaton of a given size and wrapping mode.
+     * @param boardSize size of the one-dimensional automaton
+     * @param wrappingEnabled if <code>true</code> cell on the edge of the board is considered as a neighbour of the first cell in a row and vice versa. Otherwise cell on the edge has only one real neighbour and the missing one is assumed to be dead.
+     */
     public ElementaryNeighbourhood(int boardSize, boolean wrappingEnabled) {
         this.boardSize = boardSize;
         this.wrappingEnabled = wrappingEnabled;
     }
 
+    /**
+     * Returns two neighbours of the cell.
+     *
+     * @param cell cell for which we search neighbours
+     * @return set of two neighbours of the cell - if on the edge depending on the wrapping mode the "missing" neighbour is assumed dead or taken from the other end of the row.
+     * @throws InvalidCoordinatesException thrown if given cell coordinate is not accessible - either negative or bigger then the automaton size
+     */
     @Override
     public Set<CellCoordinates> cellNeighbours(CellCoordinates cell) {
         int cellXCoord = ((Coords1D) cell).getX();

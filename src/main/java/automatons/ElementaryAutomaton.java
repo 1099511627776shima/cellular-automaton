@@ -12,14 +12,18 @@ import java.util.*;
 /**
  * This is a concrete class representing the most basic one-dimensional automaton. Behaviour of the cells in this
  * automaton is defined by the given rule which is a number between 0 and 255. Binary representation of the rule encodes
- * all 8 combinations of states of a particular cell and 2 adjacent cells. Commonly displayed as rows of cells, where each row is a next generation - the oldest generations are on the top, the youngest on the bottom.
+ * all 8 combinations of states of a particular cell and 2 adjacent cells. Commonly displayed as rows of cells, where
+ * each row is a next generation - the oldest generations are on the top, the youngest on the bottom.
  */
 public class ElementaryAutomaton extends Automaton1Dim {
     /**
-     * Sole constructor of this class. Used to create elementary automaton with specified size, rule, way of finding cell neighbours and form of initialization.
-     * @param stateFactory specifies which state factory should be used for initialization of cells
+     * Sole constructor of this class used to create elementary automaton with specified size, rule, way of finding cell
+     * neighbours and form of initialization.
+     *
+     * @param stateFactory          specifies which state factory should be used for initialization of cells
      * @param neighbourhoodStrategy specifies the rules for finding neighbours of a given cell
-     * @param size specifies the number of cells in the automaton. Elementary automaton is commonly displayed as rows of cells so the size is the number of cells in a row.
+     * @param size                  specifies the number of cells in the automaton. Elementary automaton is commonly
+     *                              displayed as rows of cells so the size is the number of cells in a row.
      * @param rule
      */
     public ElementaryAutomaton(CellStateFactory stateFactory, CellNeighbourhood neighbourhoodStrategy, int size, int rule) {
@@ -42,9 +46,10 @@ public class ElementaryAutomaton extends Automaton1Dim {
     }
 
     /**
-     * Gets the state of the given cell in the next generation of the automaton. In elementary automaton next cell state is determined by the binary representation of the given rule.
+     * Gets the state of the given cell in the next generation of the automaton. In elementary automaton next cell state
+     * is determined by the binary representation of the given rule.
      *
-     * @param currentCell the cell which state in the next generation is determined
+     * @param currentCell      the cell which state in the next generation is determined
      * @param neighboursStates set of all the cells recognized as neighbours of the current cell
      * @return the state of the given cell in the next generation
      */

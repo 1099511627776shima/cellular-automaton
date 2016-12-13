@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class GameOfLife extends Automaton2Dim {
     /**
-     * Sole constructor of this class. Used to create Game of Life with specified dimensions, rules of survival and birth of the cells, way of finding cell neighbours and form of initialization. It is also possible to enable Quad Life, which allows cells to be in 4 different alive states.
+     * Sole constructor of this class used to create Game of Life with specified dimensions, rules of survival and birth of the cells, way of finding cell neighbours and form of initialization. It is also possible to enable Quad Life, which allows cells to be in 4 different alive states.
      * @param stateFactory specifies which state factory should be used for initialization of cells
      * @param neighbourStrategy specifies the rules for finding neighbours of a given cell
      * @param width specifies the number of cells in width

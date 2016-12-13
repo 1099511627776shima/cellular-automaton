@@ -8,8 +8,17 @@ import exceptions.NotEnoughNeighboursException;
 
 import java.util.*;
 
+/**
+ * This is a concrete class representing the two-dimensional automaton called Langton's Ant. This is a type of the automaton where one or more so-called ants traverse through the cells of the automaton changing the current state of the cell to the opposite one. Movement of ants is defined by simple rules - ant turns right on the dead cell and turns left on the live cell. Ants don't interact with each other.
+ */
 public class LangtonAnt extends Automaton2Dim {
-    // Neighbourhood must be Von Neumann with r = 1 and wrapping enabled;
+    /**
+     * Sole constructor of this class used to create Langton's Ant automaton with specified dimensions and cells initialization. For Langton's Ant automaton the only neighbourhood for the typical rules of ant movement must is Von Neumann Neighbourhood with radius set to 1.
+     * @param stateFactory specifies which state factory should be used for initialization of cells
+     * @param width specifies the number of cells in width
+     * @param height specifies the number of cells in height
+     * @see cells.neighbourhood.VonNeumannNeighbourhood
+     */
     public LangtonAnt(CellStateFactory stateFactory, int width, int height) {
         // Fixed neighbourhood (VonNeumann with wrapping enabled)
         super(stateFactory, new VonNeumannNeighbourhood(width, height, 1, true), width, height);
@@ -20,6 +29,13 @@ public class LangtonAnt extends Automaton2Dim {
         return new LangtonAnt(getStateFactory(), getWidth(), getHeight());
     }
 
+    /**
+     * Gets the state of the given cell in the next generation of the automaton. The state of the cells can be changed only when the cell is left by the ant. So if there are no ants on the cell it will have the same state in the next generation. Number of ants on the cell doesn't affect changing state to the opposite one.
+     *
+     * @param currentCell the cell which state in the next generation is determined
+     * @param neighboursStates set of all the cells recognized as neighbours of the current cell
+     * @return unchanged state if there are no ants on the cell or the opposite one otherwise
+     */
     @Override
     protected CellState nextCellState(Cell currentCell, Set<Cell> neighboursStates) {
         if(neighboursStates.size() < 4) throw new NotEnoughNeighboursException("One or more neighbours of Langton Cell not identified");
