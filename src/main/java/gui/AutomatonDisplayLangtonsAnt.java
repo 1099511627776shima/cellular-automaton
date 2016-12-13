@@ -21,11 +21,36 @@ public class AutomatonDisplayLangtonsAnt extends AutomatonDisplay2D {
 
         draw.setFill(CellStateColor.get(cell.getState()));
 
-        LangtonCell langtonCell = (LangtonCell)cell.getState();
-        if(langtonCell.hasAnt())
-            draw.setFill(Color.ORANGE);
-
         draw.fillRect(offset + coords.getX()*CELL_SIZE, offset + coords.getY()*CELL_SIZE,
                 CELL_SIZE - 2*offset, CELL_SIZE - 2*offset);
+
+        LangtonCell langtonCell = (LangtonCell)cell.getState();
+        if(langtonCell.hasAnt()) {
+            // Coordinates for polygons to be drawn as ants
+            double[] verticalXPoints = {coords.getX()*CELL_SIZE+offset, coords.getX()*CELL_SIZE + CELL_SIZE/2, (coords.getX()+1)*CELL_SIZE-offset};
+            double[] horizontalYPoints = {coords.getY()*CELL_SIZE+offset, coords.getY()*CELL_SIZE + CELL_SIZE/2, (coords.getY()+1)*CELL_SIZE-offset};
+            double[] northYPoints = {(coords.getY()+1)*CELL_SIZE-offset, coords.getY()*CELL_SIZE+offset, (coords.getY()+1)*CELL_SIZE-offset};
+            double[] eastXPoints = {coords.getX()*CELL_SIZE+offset, (coords.getX()+1)*CELL_SIZE-offset, coords.getX()*CELL_SIZE+offset};
+            double[] southYPoints = {coords.getY()*CELL_SIZE+offset, (coords.getY()+1)*CELL_SIZE-offset, coords.getY()*CELL_SIZE+offset};
+            double[] westXPoints = {(coords.getX()+1)*CELL_SIZE-offset, coords.getX()*CELL_SIZE+offset, (coords.getX()+1)*CELL_SIZE-offset};
+
+            draw.setFill(Color.ORANGE);
+            for(AntState ant : langtonCell.antStates.values()) {
+                switch(ant) {
+                    case NORTH:
+                        draw.fillPolygon(verticalXPoints, northYPoints, 3);
+                        break;
+                    case EAST:
+                        draw.fillPolygon(eastXPoints, horizontalYPoints, 3);
+                        break;
+                    case SOUTH:
+                        draw.fillPolygon(verticalXPoints, southYPoints, 3);
+                        break;
+                    case WEST:
+                        draw.fillPolygon(westXPoints, horizontalYPoints, 3);
+                        break;
+                }
+            }
+        }
     }
 }

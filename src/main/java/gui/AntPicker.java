@@ -19,11 +19,13 @@ import java.util.Map;
  */
 public class AntPicker {
     public AntPicker(AnchorPane antPickerPane, int cellSize) {
+        // Clearing old content of ant picker
+        if(antPickerPane.getChildren().size() > 0) antPickerPane.getChildren().remove(0);
         this.antPickerPane = antPickerPane;
         this.cellSize = cellSize;
         initAntsDisplay();
         next = 0;
-        antPickerPane.getChildren().add(0, antsDisplay.get(next % antsDisplay.size()).getValue());
+        antPickerPane.getChildren().setAll(antsDisplay.get(next % antsDisplay.size()).getValue());
         selectedAntState = AntState.NORTH;
         disable();
 

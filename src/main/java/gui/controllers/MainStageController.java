@@ -187,6 +187,7 @@ public class MainStageController implements Initializable, Controller {
         // Disable all insert modes
         editManualInsertCheck.setSelected(false);
         editAddAntCheck.setSelected(false);
+        disableAllManualInsertModes();
 
         // Setup StatePicker
         statePicker = new StatePicker(statePickerRect, mode);
