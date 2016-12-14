@@ -7,9 +7,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by bzdeco on 07.12.16.
+ * This class is used to store and access information about the colors associated with particular cell states.
  */
 public class CellStateColor {
+    /**
+     * Gets the color associated with the given cell state.
+     *
+     * @param state state of the cell for which the display color is required
+     * @return color set for the given cell state
+     */
     public static Color get(CellState state) {
 
         if(state instanceof LangtonCell) {

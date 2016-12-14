@@ -64,7 +64,7 @@ public class ElementaryAutomatonCreatorController extends CreatorController impl
 
         String number = "\\d+";
         if(!numberOfCellsTextField.getText().matches(number) || Integer.parseInt(numberOfCellsTextField.getText()) % 2 == 0)
-            alert.addMessage("Number of cells must be an odd number between 1 and 400");
+            alert.addMessage("Number of cells must be an odd positive number");
         if(ruleTextField.getText().equals("") || !ruleTextField.getText().matches(number))
             alert.addMessage("Rule must be specified as a number");
         else {

@@ -52,9 +52,9 @@ public class LangtonsAntCreatorController extends CreatorController implements I
 
         String number = "\\d+";
         if(!widthTextField.getText().matches(number))
-            alert.addMessage("Width must be a number between 1 and 400");
+            alert.addMessage("Width must be a positive number");
         if(!heightTextField.getText().matches(number))
-            alert.addMessage("Height must be a number between 1 and 400");
+            alert.addMessage("Height must be a positive number");
         if(initialStateComboBox.getValue() == null)
             alert.addMessage("Initial cell state was not selected");
 

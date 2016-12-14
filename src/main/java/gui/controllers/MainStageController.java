@@ -37,106 +37,19 @@ import java.net.URL;
 import java.util.*;
 
 public class MainStageController implements Initializable, Controller {
-    final int CELL_SIZE = 20;
-
-    @FXML
-    private BorderPane window;
-
-    @FXML
-    private MenuItem fileNew;
-
-    @FXML
-    private MenuItem fileExit;
-
-    @FXML
-    private MenuItem editInsertLibrary;
-
-    @FXML
-    private CheckMenuItem editManualInsertCheck;
-
-    @FXML
-    private CheckMenuItem editAddAntCheck;
-
-    @FXML
-    private MenuItem simulationRun;
-
-    @FXML
-    private MenuItem simulationPause;
-
-    @FXML
-    private MenuItem simulationForward;
-
-    @FXML
-    private HBox antPickerBox;
-
-    @FXML
-    private AnchorPane antPickerPane;
-
-    @FXML
-    private Label insertModeLabel;
-
-    @FXML
-    private Rectangle statePickerRect;
-
-    @FXML
-    private TextField stepTextField;
-
-    @FXML
-    private Button newBtn;
-
-    @FXML
-    private Button insertBtn;
-
-    @FXML
-    private Button simulationRunBtn;
-
-    @FXML
-    private Button simulationPauseBtn;
-
-    @FXML
-    private Button simulationForwardBtn;
-
-    @FXML
-    private ScrollPane scrollableRegion;
-
-    @FXML
-    private Group scrollContent;
-
-    @FXML
-    private StackPane zoomableRegion;
-
-    @FXML
-    private Label generationValueLabel;
-
-    @FXML
-    private Label liveCellsValueLabel;
-
-    private Group automatonGroup;
-    private AutomatonDisplay automatonDisplay;
-    private Stage main;
-    private Stage createNewAutomaton;
-    private Stage insertStructure;
-    private InsertStructureStageController insertStructureController;
-    private Timeline simulationTimeline;
-    private StatePicker statePicker;
-    private AntPicker antPicker;
-
-    private Automaton currentAutomaton;
-    private Structure structureToInsert;
-
-    private IntegerProperty generation = new SimpleIntegerProperty(0);
-    private IntegerProperty liveCells = new SimpleIntegerProperty(0);
-    private IntegerProperty frameDuration = new SimpleIntegerProperty(250); // in milliseconds
-    private BooleanProperty insertModeEnabled = new SimpleBooleanProperty(false);
-    private BooleanProperty manualInsertModeEnabled = new SimpleBooleanProperty(false);
-    private BooleanProperty addAntModeEnabled = new SimpleBooleanProperty(false);
-    private AutomatonMode mode;
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setUIEventHandlers();
     }
 
+    /**
+     * Adds access to all stages that can be displayed in the application and to the controller of the library browser
+     *
+     * @param main main stage of the application
+     * @param createNewAutomaton automaton creator tool stage
+     * @param insertStructure structure library browser stage
+     * @param insertStructureController structure library browser controller
+     */
     public void addAccessToAllStages(Stage main, Stage createNewAutomaton, Stage insertStructure, InsertStructureStageController insertStructureController) {
         this.main = main;
         this.createNewAutomaton = createNewAutomaton;
@@ -157,10 +70,16 @@ public class MainStageController implements Initializable, Controller {
         automatonDisplay.display(); // Display new state
     }
 
+    /**
+     * Automatically calculates and displays next states of the automaton.
+     */
     public void runSimulation() {
         simulationTimeline.play();
     }
 
+    /**
+     * Pauses the simulation so no further next states are calculated an displayed until it's resumed.
+     */
     public void pauseSimulation() {
         simulationTimeline.stop();
     }
@@ -169,9 +88,7 @@ public class MainStageController implements Initializable, Controller {
         return mode;
     }
 
-    /**
-     * Creates currentAutomaton according to given parameters and displays it
-     */
+    // Creates currentAutomaton according to given parameters and displays it
     void createAutomaton(Automaton automaton, int width, int height, AutomatonMode mode) {
         this.currentAutomaton = automaton;
         this.mode = mode;
@@ -668,4 +585,99 @@ public class MainStageController implements Initializable, Controller {
         editManualInsertCheck.setSelected(false);
         editAddAntCheck.setSelected(false);
     }
+
+    private final int CELL_SIZE = 20;
+
+    @FXML
+    private BorderPane window;
+
+    @FXML
+    private MenuItem fileNew;
+
+    @FXML
+    private MenuItem fileExit;
+
+    @FXML
+    private MenuItem editInsertLibrary;
+
+    @FXML
+    private CheckMenuItem editManualInsertCheck;
+
+    @FXML
+    private CheckMenuItem editAddAntCheck;
+
+    @FXML
+    private MenuItem simulationRun;
+
+    @FXML
+    private MenuItem simulationPause;
+
+    @FXML
+    private MenuItem simulationForward;
+
+    @FXML
+    private HBox antPickerBox;
+
+    @FXML
+    private AnchorPane antPickerPane;
+
+    @FXML
+    private Label insertModeLabel;
+
+    @FXML
+    private Rectangle statePickerRect;
+
+    @FXML
+    private TextField stepTextField;
+
+    @FXML
+    private Button newBtn;
+
+    @FXML
+    private Button insertBtn;
+
+    @FXML
+    private Button simulationRunBtn;
+
+    @FXML
+    private Button simulationPauseBtn;
+
+    @FXML
+    private Button simulationForwardBtn;
+
+    @FXML
+    private ScrollPane scrollableRegion;
+
+    @FXML
+    private Group scrollContent;
+
+    @FXML
+    private StackPane zoomableRegion;
+
+    @FXML
+    private Label generationValueLabel;
+
+    @FXML
+    private Label liveCellsValueLabel;
+
+    private Group automatonGroup;
+    private AutomatonDisplay automatonDisplay;
+    private Stage main;
+    private Stage createNewAutomaton;
+    private Stage insertStructure;
+    private InsertStructureStageController insertStructureController;
+    private Timeline simulationTimeline;
+    private StatePicker statePicker;
+    private AntPicker antPicker;
+
+    private Automaton currentAutomaton;
+    private Structure structureToInsert;
+
+    private IntegerProperty generation = new SimpleIntegerProperty(0);
+    private IntegerProperty liveCells = new SimpleIntegerProperty(0);
+    private IntegerProperty frameDuration = new SimpleIntegerProperty(250); // in milliseconds
+    private BooleanProperty insertModeEnabled = new SimpleBooleanProperty(false);
+    private BooleanProperty manualInsertModeEnabled = new SimpleBooleanProperty(false);
+    private BooleanProperty addAntModeEnabled = new SimpleBooleanProperty(false);
+    private AutomatonMode mode;
 }

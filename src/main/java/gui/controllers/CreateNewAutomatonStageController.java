@@ -15,37 +15,31 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Created by bzdeco on 29.11.16.
+ * This is the class used to setup the tool for creating new automaton. It loads proper settings according to the chosen automaton type.
  */
 public class CreateNewAutomatonStageController implements Initializable, Controller {
-    @FXML
-    private ComboBox<String> automatonTypeComboBox;
-    @FXML
-    private AnchorPane settingsAnchor;
-    @FXML
-    private Button createBtn;
-    @FXML
-    private Button cancelBtn;
-
-    private String[] automatonTypes = {
-            "Elementary Automaton",
-            "Game of Life",
-            "Langton's Ant",
-            "Wire World"
-    };
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         automatonTypeComboBox.getItems().addAll(automatonTypes);
         createBtn.setDisable(true);
 
-        setUIElementsListners();
+        setUIElementsListeners();
     }
 
+    /**
+     * Adds access to the stage controlled by this controller.
+     *
+     * @param stage create new automaton stage created in {@link gui.Main}
+     */
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
+    /**
+     * Adds access to the main stage controller.
+     *
+     * @param mainController controller of the main stage of the application
+     */
     public void setMasterController(MainStageController mainController) {
         this.mainController = mainController;
     }
@@ -57,7 +51,7 @@ public class CreateNewAutomatonStageController implements Initializable, Control
         return loader.getController();
     }
 
-    private void setUIElementsListners() {
+    private void setUIElementsListeners() {
         // Loading different settings options
         automatonTypeComboBox.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -127,4 +121,19 @@ public class CreateNewAutomatonStageController implements Initializable, Control
     private Stage stage;
     private MainStageController mainController;
     private CreatorController automatonCreatorController;
+    @FXML
+    private ComboBox<String> automatonTypeComboBox;
+    @FXML
+    private AnchorPane settingsAnchor;
+    @FXML
+    private Button createBtn;
+    @FXML
+    private Button cancelBtn;
+
+    private String[] automatonTypes = {
+            "Elementary Automaton",
+            "Game of Life",
+            "Langton's Ant",
+            "Wire World"
+    };
 }

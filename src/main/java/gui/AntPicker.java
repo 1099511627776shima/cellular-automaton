@@ -15,9 +15,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Created by bzdeco on 11.12.16.
+ * This is the tool for inserting ants into Langton's Ant automaton. It allows user to choose state of the added ant.
  */
 public class AntPicker {
+    /**
+     * Sole constructor of this class creating new ant picker from given JavaFX AnchorPane which will display ant state that will be inserted in the next use of add ant tool.
+     *
+     * @param antPickerPane JavaFX AnchorPane used to display currently selected ant state that can be inserted into automaton. The state can be change by clicking on the active (not disabled) ant picker pane.
+     * @param cellSize size of the cell in the displayed automaton where the ant will be inserted
+     */
     public AntPicker(AnchorPane antPickerPane, int cellSize) {
         // Clearing old content of ant picker
         if(antPickerPane.getChildren().size() > 0) antPickerPane.getChildren().remove(0);
@@ -37,18 +43,34 @@ public class AntPicker {
         });
     }
 
+    /**
+     * Get the currently selected ant state.
+     *
+     * @return currently selected ant state represented by a triangle pointing in the one of four geographical directions
+     */
     public AntState getAnt() {
         return selectedAntState;
     }
 
+    /**
+     * Get the new ID for the added ant
+     *
+     * @return unused ID fot the added ant that will be associated with it
+     */
     public int getNewID() {
         return ID++;
     }
 
+    /**
+     * Disables the ant picker's pane to make it inaccessible for user. It happens when the user leaves add ant mode or creates the new automaton, when all insert modes are disabled.
+     */
     public void disable() {
         antPickerPane.disableProperty().setValue(true);
     }
 
+    /**
+     * Enables the ant picker's pane to be accessible for user. It happens when the user enters add ant mode.
+     */
     public void enable() {
         antPickerPane.disableProperty().setValue(false);
     }

@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
- * Created by bzdeco on 06.12.16.
+ * This is the class used to setup the library of structures. It loads proper list of structures according to the chosen automaton type.
  */
 public class InsertStructureStageController implements Initializable, Controller {
     @Override
@@ -41,18 +41,27 @@ public class InsertStructureStageController implements Initializable, Controller
         setUIElementsListeners();
     }
 
+    /**
+     * Adds access to the stage controlled by this controller.
+     *
+     * @param stage insert structure stage created in {@link gui.Main}
+     */
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
+    /**
+     * Adds access to the main stage controller.
+     *
+     * @param mainController controller of the main stage of the application
+     */
     public void setMasterController(MainStageController mainController) {
         this.mainController = mainController;
     }
 
-    public ListView<String> getListView() {
-        return structuresList;
-    }
-
+    /**
+     * Displays structure selected by the user from the list in library browser.
+     */
     public void displaySelectedStructure() {
         setStructureNameLabel(selectedStructure.getName().substring(0,1).toUpperCase() + selectedStructure.getName().substring(1));
         setStructureDescriptionLabel(selectedStructure.getDescription());
@@ -74,6 +83,9 @@ public class InsertStructureStageController implements Initializable, Controller
         displayStructureCells(selectedStructure.getPositionedStructure((size - 1)/2, (size - 1)/2));
     }
 
+    /**
+     * Sets up the list of available structures depending on the displayed automaton type.
+     */
     public void configureStructureListOnWindowDisplay() {
         mode = mainController.getCurrentAutomatonMode();
 

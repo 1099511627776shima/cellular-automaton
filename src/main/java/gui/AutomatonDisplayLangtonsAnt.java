@@ -8,7 +8,9 @@ import cells.states.LangtonCell;
 import javafx.scene.paint.Color;
 
 /**
- * Created by bzdeco on 11.12.16.
+ * This is a concrete class used to display Langton's Ant automatons. It varies from the regular two-dimensional automaton because of the implementation of the Langton cell state.
+ *
+ * @see cells.states.LangtonCell
  */
 public class AutomatonDisplayLangtonsAnt extends AutomatonDisplay2D {
     public AutomatonDisplayLangtonsAnt(Automaton automaton, int width, int height, int cellSize) {

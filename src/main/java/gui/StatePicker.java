@@ -1,6 +1,5 @@
 package gui;
 
-import automatons.Automaton;
 import cells.states.*;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
@@ -16,9 +15,10 @@ import java.util.Map;
  */
 public class StatePicker {
     /**
+     * Sole constructor of this class creating new state picker from given JavaFX Rectangle which will display cell state that will be inserted in the next use of manual insert tool.
      *
-     * @param statePickerRect
-     * @param mode
+     * @param statePickerRect JavaFX Rectangle used to display currently selected cell state that can be inserted into automaton. The state can be change by clicking on the active (not disabled) state picker rectangle.
+     * @param mode automaton type, which provides information about the possible cell states
      */
     public StatePicker(Rectangle statePickerRect, AutomatonMode mode) {
         this.statePickerRect = statePickerRect;
@@ -40,18 +40,33 @@ public class StatePicker {
         });
     }
 
+    /**
+     * Gets currently selected cell state. Used when inserting a cell in manual insert mode.
+     *
+     * @return cell state that is selected and which color is displayed in the UI.
+     */
     public CellState getState() {
         return selectedState;
     }
 
+    /**
+     * Enables the state picker's rectangle to be accessible for user. It happens when the user enters manual insert mode.
+     */
     public void enable() {
         statePickerRect.disableProperty().setValue(false);
     }
 
+    /**
+     * Disables the state picker's rectangle to make it inaccessible for user. It happens when the user leaves manual insert mode or creates the new automaton, when all insert modes are disabled.
+     */
     public void disable() {
         statePickerRect.disableProperty().setValue(true);
     }
 
+    /**
+     * Sets mode to given automaton mode. This mode must correspond with the actual mode of the displayed automaton.
+     * @param mode mode which associated cell states should be displayed and accessible through state picker
+     */
     public void changeMode(AutomatonMode mode) {
         this.currentMode = mode;
 
@@ -106,6 +121,5 @@ public class StatePicker {
     private CellState selectedState;
     private AutomatonMode currentMode;
     private int next;
-    /** Map assigning particular automaton currentMode to map of possible cell states and corresponding colors */
     private Map<AutomatonMode, ArrayList<Pair<CellState, Color>>> stateColors;
 }

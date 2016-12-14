@@ -110,9 +110,9 @@ public class GameOfLifeCreatorController extends CreatorController implements In
         String number = "\\d+";
         String conditions = "[\\d+[\\s]*]+";
         if(!widthTextField.getText().matches(number))
-            alert.addMessage("Width must be a number between 1 and 400");
+            alert.addMessage("Width must be a positive number");
         if(!heightTextField.getText().matches(number))
-            alert.addMessage("Height must be a number between 1 and 400");
+            alert.addMessage("Height must be a positive number");
         if(neighbourhoodTypeComboBox.getValue() == null)
             alert.addMessage("Neighbourhood type was not selected");
         if(!neighbourhoodRadiusTextField.getText().matches(number))

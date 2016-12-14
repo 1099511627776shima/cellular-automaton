@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Created by bzdeco on 03.12.16.
+ * This is a concrete class used to display one-dimensional automatons.
  */
 public class AutomatonDisplay1D extends AutomatonDisplay {
     public AutomatonDisplay1D(Automaton automaton, int width, int cellSize) {
@@ -50,12 +50,15 @@ public class AutomatonDisplay1D extends AutomatonDisplay {
         currentRow++;
     }
 
+    /**
+     * Adds current automaton to the history that will be used when the next state of the automaton is drawn. Used to draw rows of cells of ancestors of the current automaton.
+     */
     @Override
     public void updateDisplayHistory() {
         history.add(automaton);
     }
 
-    /** Tracking on which row the next generation should be drawn */
+    // Tracking on which row the next generation should be drawn
     private int currentRow;
     private ArrayList<Automaton> history;
 }

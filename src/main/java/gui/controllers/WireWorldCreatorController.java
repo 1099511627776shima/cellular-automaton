@@ -66,9 +66,9 @@ public class WireWorldCreatorController extends CreatorController implements Ini
 
         String number = "\\d+";
         if(!widthTextField.getText().matches(number))
-            alert.addMessage("Width must be a number between 1 and 400");
+            alert.addMessage("Width must be a positive number");
         if(!heightTextField.getText().matches(number))
-            alert.addMessage("Height must be a number between 1 and 400");
+            alert.addMessage("Height must be a positive number");
         if(initialCircuitComboBox.getValue() == null)
             alert.addMessage("Initial state was not selected");
 

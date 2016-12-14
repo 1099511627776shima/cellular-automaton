@@ -5,8 +5,17 @@ import cells.states.*;
 
 import java.util.*;
 
+/**
+ * This class is used to store and access all hardcoded structures.
+ */
 public class Structures {
-
+    /**
+     * Static method giving access to stored structures.
+     *
+     * @param name name of the structures to be returned. It must be given in lowercase.
+     * @param mode mode of the automaton the structure will be inserted into
+     * @return structure associated with the given name in the given mode
+     */
     public static Structure getStructure(String name, AutomatonMode mode) {
         switch (mode) {
             case QUAD:
@@ -22,7 +31,7 @@ public class Structures {
         }
     }
 
-    /** For quad life colors are distributed randomly */
+    // For quad life colors are distributed randomly
     private static Map<String, Structure> initializeStructuresGoL(String mode) {
         Map<String, Structure> initializedStructures = new HashMap<>();
 
