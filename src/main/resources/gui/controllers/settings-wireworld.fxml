@@ -67,7 +67,7 @@
          </rowConstraints>
          <children>
             <Label text="Initialize with:" />
-            <ComboBox fx:id="initialCircuitComboBox" prefWidth="1000.0" promptText="Type of circuit" GridPane.columnIndex="1" />
+            <ComboBox fx:id="initialCircuitComboBox" prefWidth="1000.0" promptText="Cell state" GridPane.columnIndex="1" />
          </children>
       </GridPane>
       <GridPane hgap="20.0" GridPane.rowIndex="1">

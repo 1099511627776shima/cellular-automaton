@@ -65,5 +65,4 @@ public class Structure {
     private int height;
     /** Map containing positions of live cells RELATIVE to the pivotPoint */
     private Map<Coords2D, CellState> structureMap;
-    private Coords2D pivotPoint;
 }

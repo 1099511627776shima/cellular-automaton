@@ -9,6 +9,7 @@ import cells.states.BinaryState;
 import cells.states.CellStateFactory;
 import cells.states.QuadState;
 import cells.states.UniformStateFactory;
+import gui.AutomatonMode;
 import gui.CreateErrorAlert;
 import gui.eventhandlers.SimpleToggleEventHandler;
 import javafx.collections.FXCollections;
@@ -96,11 +97,11 @@ public class GameOfLifeCreatorController extends CreatorController implements In
     }
 
     @Override
-    public String getMode() {
+    public AutomatonMode getMode() {
         if(quadLifeToggle.isSelected())
-            return "quad";
+            return AutomatonMode.QUAD;
         else
-            return "binary";
+            return AutomatonMode.BINARY;
     }
 
     public Alert inputIsValid() {
@@ -172,9 +173,6 @@ public class GameOfLifeCreatorController extends CreatorController implements In
             "alive (yellow)",
             "alive (blue)"
     );
-
-    @FXML
-    private GridPane settings;
 
     @FXML
     private TextField widthTextField;

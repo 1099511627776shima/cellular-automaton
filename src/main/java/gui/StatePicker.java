@@ -1,8 +1,8 @@
 package gui;
 
+import automatons.Automaton;
 import cells.states.*;
 import javafx.event.EventHandler;
-import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -12,10 +12,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by bzdeco on 09.12.16.
+ * This is the tool for manually inserting cells in the automaton. It allows user to choose cell state of the added cell.
  */
 public class StatePicker {
-    public StatePicker(Rectangle statePickerRect, String mode) {
+    /**
+     *
+     * @param statePickerRect
+     * @param mode
+     */
+    public StatePicker(Rectangle statePickerRect, AutomatonMode mode) {
         this.statePickerRect = statePickerRect;
         initStateColors();
         changeMode(mode);
@@ -47,20 +52,20 @@ public class StatePicker {
         statePickerRect.disableProperty().setValue(true);
     }
 
-    public void changeMode(String mode) {
+    public void changeMode(AutomatonMode mode) {
         this.currentMode = mode;
 
         switch (mode) {
-            case "quad":
+            case QUAD:
                 selectedState = QuadState.DEAD;
                 break;
-            case "wireworld":
+            case WIREWORLD:
                 selectedState = WireElectronState.VOID;
                 break;
-            case "binary":
+            case BINARY:
                 selectedState = BinaryState.DEAD;
                 break;
-            case "ant":
+            case ANT:
                 selectedState = new LangtonCell(BinaryState.DEAD);
                 break;
         }
@@ -74,12 +79,12 @@ public class StatePicker {
         ArrayList<Pair<CellState, Color>> binary = new ArrayList<>();
         binary.add(new Pair<>(BinaryState.DEAD, CellStateColor.get(BinaryState.DEAD)));
         binary.add(new Pair<>(BinaryState.ALIVE, CellStateColor.get(BinaryState.ALIVE)));
-        stateColors.put("binary", binary);
+        stateColors.put(AutomatonMode.BINARY, binary);
 
         ArrayList<Pair<CellState, Color>> ant = new ArrayList<>();
         ant.add(new Pair<>(new LangtonCell(BinaryState.DEAD), CellStateColor.get(BinaryState.DEAD)));
         ant.add(new Pair<>(new LangtonCell(BinaryState.ALIVE), CellStateColor.get(BinaryState.ALIVE)));
-        stateColors.put("ant", ant);
+        stateColors.put(AutomatonMode.ANT, ant);
 
         ArrayList<Pair<CellState, Color>> quad = new ArrayList<>();
         quad.add(new Pair<>(QuadState.DEAD, CellStateColor.get(QuadState.DEAD)));
@@ -87,20 +92,20 @@ public class StatePicker {
         quad.add(new Pair<>(QuadState.GREEN, CellStateColor.get(QuadState.GREEN)));
         quad.add(new Pair<>(QuadState.YELLOW, CellStateColor.get(QuadState.YELLOW)));
         quad.add(new Pair<>(QuadState.BLUE, CellStateColor.get(QuadState.BLUE)));
-        stateColors.put("quad", quad);
+        stateColors.put(AutomatonMode.QUAD, quad);
 
         ArrayList<Pair<CellState, Color>> wireworld = new ArrayList<>();
         wireworld.add(new Pair<>(WireElectronState.VOID, CellStateColor.get(WireElectronState.VOID)));
         wireworld.add(new Pair<>(WireElectronState.WIRE, CellStateColor.get(WireElectronState.WIRE)));
         wireworld.add(new Pair<>(WireElectronState.ELECTRON_HEAD, CellStateColor.get(WireElectronState.ELECTRON_HEAD)));
         wireworld.add(new Pair<>(WireElectronState.ELECTRON_TAIL, CellStateColor.get(WireElectronState.ELECTRON_TAIL)));
-        stateColors.put("wireworld", wireworld);
+        stateColors.put(AutomatonMode.WIREWORLD, wireworld);
     }
 
     private Rectangle statePickerRect;
     private CellState selectedState;
-    private String currentMode;
+    private AutomatonMode currentMode;
     private int next;
     /** Map assigning particular automaton currentMode to map of possible cell states and corresponding colors */
-    private Map<String, ArrayList<Pair<CellState, Color>>> stateColors;
+    private Map<AutomatonMode, ArrayList<Pair<CellState, Color>>> stateColors;
 }

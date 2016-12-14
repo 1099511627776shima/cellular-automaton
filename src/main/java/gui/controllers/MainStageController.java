@@ -130,7 +130,7 @@ public class MainStageController implements Initializable, Controller {
     private BooleanProperty insertModeEnabled = new SimpleBooleanProperty(false);
     private BooleanProperty manualInsertModeEnabled = new SimpleBooleanProperty(false);
     private BooleanProperty addAntModeEnabled = new SimpleBooleanProperty(false);
-    private String mode;
+    private AutomatonMode mode;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -148,9 +148,6 @@ public class MainStageController implements Initializable, Controller {
      * Calculates and display the next state (next generation) of the currentAutomaton
      */
     public void stepForward() {
-        //previousStates.add(currentAutomaton); // Add current currentAutomaton to previous states
-        //if(previousStates.size() > HISTORY_LIMIT)
-        //    previousStates.remove(0);
         automatonDisplay.updateDisplayHistory(); // Memorize recent state for further stepping backwards
         currentAutomaton = currentAutomaton.nextState(); // Set next currentAutomaton state to be current state
         automatonDisplay.updateAutomaton(currentAutomaton); // Set new current state to be current state for display
@@ -168,14 +165,14 @@ public class MainStageController implements Initializable, Controller {
         simulationTimeline.stop();
     }
 
-    String getCurrentAutomatonMode() {
+    AutomatonMode getCurrentAutomatonMode() {
         return mode;
     }
 
     /**
      * Creates currentAutomaton according to given parameters and displays it
      */
-    void createAutomaton(Automaton automaton, int width, int height, String mode) {
+    void createAutomaton(Automaton automaton, int width, int height, AutomatonMode mode) {
         this.currentAutomaton = automaton;
         this.mode = mode;
         generation.setValue(0);
@@ -193,7 +190,7 @@ public class MainStageController implements Initializable, Controller {
         statePicker = new StatePicker(statePickerRect, mode);
 
         // Setup AntPicker and add ant option
-        if(mode.equals("ant")) {
+        if(mode == AutomatonMode.ANT) {
             // Ant Picker
             antPicker = new AntPicker(antPickerPane, CELL_SIZE);
             antPickerBox.setVisible(true);

@@ -19,8 +19,6 @@ import java.util.ResourceBundle;
  */
 public class CreateNewAutomatonStageController implements Initializable, Controller {
     @FXML
-    private Label titleLabel;
-    @FXML
     private ComboBox<String> automatonTypeComboBox;
     @FXML
     private AnchorPane settingsAnchor;

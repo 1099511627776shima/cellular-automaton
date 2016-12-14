@@ -7,15 +7,15 @@ import java.util.*;
 
 public class Structures {
 
-    public static Structure getStructure(String name, String mode) {
+    public static Structure getStructure(String name, AutomatonMode mode) {
         switch (mode) {
-            case "quad":
+            case QUAD:
                 return quadStructures.get(name);
-            case "binary":
+            case BINARY:
                 return binaryStructures.get(name);
-            case "wireworld":
+            case WIREWORLD:
                 return wireworldStructures.get(name);
-            case "ant":
+            case ANT:
                 return antStructures.get(name);
             default:
                 return null;

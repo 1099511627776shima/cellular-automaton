@@ -3,6 +3,7 @@ package gui.controllers;
 import cells.coordinates.CellCoordinates;
 import cells.coordinates.Coords2D;
 import cells.states.CellState;
+import gui.AutomatonMode;
 import gui.Structures;
 import gui.CellStateColor;
 import gui.Structure;
@@ -77,7 +78,7 @@ public class InsertStructureStageController implements Initializable, Controller
         mode = mainController.getCurrentAutomatonMode();
 
         structuresList.getItems().clear();
-        if(mode.equals("wireworld")) {
+        if(mode == AutomatonMode.WIREWORLD) {
             structuresList.getItems().addAll(structuresNamesWW);
         }
         else
@@ -116,7 +117,7 @@ public class InsertStructureStageController implements Initializable, Controller
     private void drawBoard(int size) {
         cellSize = width / size;
 
-        if(mode.equals("wireworld")) draw.setFill(Color.BLACK);
+        if(mode == AutomatonMode.WIREWORLD) draw.setFill(Color.BLACK);
         else draw.setFill(Color.WHITE);
 
         // Background
@@ -156,7 +157,7 @@ public class InsertStructureStageController implements Initializable, Controller
 
     private Stage stage;
     private MainStageController mainController;
-    private String mode;
+    private AutomatonMode mode;
     private Structure selectedStructure;
 
     private Canvas structureCanvas;

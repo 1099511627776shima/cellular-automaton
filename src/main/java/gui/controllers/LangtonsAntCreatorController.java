@@ -3,6 +3,7 @@ package gui.controllers;
 import automatons.Automaton;
 import automatons.LangtonAnt;
 import cells.states.*;
+import gui.AutomatonMode;
 import gui.CreateErrorAlert;
 import gui.eventhandlers.SimpleToggleEventHandler;
 import javafx.collections.FXCollections;
@@ -41,8 +42,8 @@ public class LangtonsAntCreatorController extends CreatorController implements I
     }
 
     @Override
-    public String getMode() {
-        return "ant";
+    public AutomatonMode getMode() {
+        return AutomatonMode.ANT;
     }
 
     @Override

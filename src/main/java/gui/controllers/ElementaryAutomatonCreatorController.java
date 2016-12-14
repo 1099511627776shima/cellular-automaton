@@ -6,6 +6,7 @@ import cells.coordinates.CellCoordinates;
 import cells.coordinates.Coords1D;
 import cells.neighbourhood.ElementaryNeighbourhood;
 import cells.states.*;
+import gui.AutomatonMode;
 import gui.CreateErrorAlert;
 import gui.eventhandlers.SimpleToggleEventHandler;
 import javafx.collections.FXCollections;
@@ -53,8 +54,8 @@ public class ElementaryAutomatonCreatorController extends CreatorController impl
     }
 
     @Override
-    public String getMode() {
-        return "binary";
+    public AutomatonMode getMode() {
+        return AutomatonMode.BINARY;
     }
 
     @Override
@@ -87,9 +88,6 @@ public class ElementaryAutomatonCreatorController extends CreatorController impl
     private void setUIElementsListners() {
         wrappingToggle.setOnAction(new SimpleToggleEventHandler(wrappingToggle));
     }
-
-    @FXML
-    private GridPane settings;
 
     @FXML
     private TextField numberOfCellsTextField;

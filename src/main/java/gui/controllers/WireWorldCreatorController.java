@@ -5,6 +5,7 @@ import automatons.WireWorld;
 import cells.states.CellStateFactory;
 import cells.states.UniformStateFactory;
 import cells.states.WireElectronState;
+import gui.AutomatonMode;
 import gui.CreateErrorAlert;
 import gui.eventhandlers.SimpleToggleEventHandler;
 import javafx.collections.FXCollections;
@@ -55,8 +56,8 @@ public class WireWorldCreatorController extends CreatorController implements Ini
     }
 
     @Override
-    public String getMode() {
-        return "wireworld";
+    public AutomatonMode getMode() {
+        return AutomatonMode.WIREWORLD;
     }
 
     @Override
