@@ -132,11 +132,17 @@ public class MainStageController implements Initializable, Controller {
             editManualInsertCheck.disableProperty().setValue(true);
             editAddAntCheck.disableProperty().setValue(true);
         }
-        else if(automaton instanceof LangtonAnt) {
-            automatonDisplay = new AutomatonDisplayLangtonsAnt(automaton, width, height, CELL_SIZE);
+        else {
+            insertBtn.disableProperty().setValue(false);
+            editManualInsertCheck.disableProperty().setValue(false);
+
+            if(automaton instanceof LangtonAnt) {
+                automatonDisplay = new AutomatonDisplayLangtonsAnt(automaton, width, height, CELL_SIZE);
+            }
+            else {
+                automatonDisplay = new AutomatonDisplay2D(automaton, width, height, CELL_SIZE);
+            }
         }
-        else
-            automatonDisplay = new AutomatonDisplay2D(automaton, width, height, CELL_SIZE);
 
         setAutomatonDisplayMouseClickDetection();
 
